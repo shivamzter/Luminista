@@ -133,7 +133,7 @@ public float3 rayMarchSecondary(in float3 playerSpaceRayOrigin) {
     float3 rayOrigin = playerSpaceRayOrigin;
     
     // float3 lightPos = mul(float3x3(ap.camera.viewInv), ap.celestial.sunPosition);
-    float3 lightDir = normalize(ap.celestial.sunPosition);
+    float3 lightDir = normalize(ap.celestial.position);
 
     float2 atmosLayerBottom = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSHPHERE_BOTTOM_SPHERE_RADIUS_KM);
     float2 atmosLayerTop = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSPHERE_TOP_SPHERE_RADIUS_KM);

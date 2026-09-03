@@ -1,3 +1,5 @@
+import java.lang.foreign.Linker.Option;
+
 import dev.irisshaders.aperture.api.PackSettings;
 import dev.irisshaders.aperture.api.settings.OptionType;
 import dev.irisshaders.aperture.api.settings.SettingsManager;
@@ -30,6 +32,11 @@ public class LuministaSettings implements PackSettings {
 
 		final var screenLabPBR = screen.child("labPBR");
 		screenLabPBR.option("NORMAL_MAPPING", OptionType.boolType(true), false);
+		screenLabPBR.option("MATERIAL_AO", OptionType.boolType(true), false);
+
+		final var screenLighting = screen.child("lighting");
+		screenLighting.option("SSAO", OptionType.boolType(true), false);
+		screenLighting.option("VANILLA_AO", OptionType.boolType(true), false);
     }
     
 }

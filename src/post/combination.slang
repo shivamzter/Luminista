@@ -1,6 +1,7 @@
 import aperture;
 import helpers.util;
 import settings;
+import lib.tonemap;
 
 Texture2D mainTexture;
 StructuredBuffer<float2> exposureBuffer;
@@ -14,11 +15,12 @@ float4 main(float2 pos: SV_Position) {
 
     if (!userSettings.DEBUG_VIEW) {
         color.rgb = decodeColorRgbm16F(color.rgba);
-        // color.rgb /= 10000.0;
 
         color.rgb *= exposure;
 
         color.rgb = color.rgb / (1.0 + color.rgb);
+        // color.rgb = PBRNeutralToneMapping(color.rgb);
+        // color.rgb = reinhardLuminanceToneMapping(color.rgb);
     }
    
     color.rgb = pow(color.rgb, float3(1.0 / 2.2));

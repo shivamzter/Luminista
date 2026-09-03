@@ -36,25 +36,27 @@ float linearStep(float min, float max, float x) {
 }
 
 struct BasicShader : Shader<VertexOutput, FragmentOutput> {
-    static void emitVertex(Vertex input, out VertexOutput output, out float4 pos) {
-        pos = input.pos();
+    static void emitVertex(Vertex v, ObjectTransforms transforms, out VertexOutput output, out float4 pos) {
+        pos = v.pos();
+        pos = mul(transforms.view, float4(pos.xyz, 1.0));
+        pos = mul(transforms.projection, pos);
 
-        output.uv = input.uv();
-        output.pos = input.pos().xyz;
-        output.color = input.color();
-        output.normal = input.normal().value;
-        output.tangent = input.tangent().value;
-        output.light = float3(input.lightCoord(), input.vertexAO().value);
+        output.uv = v.uv();
+        output.pos = pos.xyz;
+        output.color = v.color();
+        output.normal = v.normal().value;
+        output.tangent = v.tangent().value;
+        output.light = float3(v.lightCoord(), v.vertexAO().value);
     }
 
-    static FragmentOutput shadeSurface(PixelData objectData, VertexOutput input) {
+    static FragmentOutput shadeSurface(PixelData objectData, VertexOutput vi) {
 
         FragmentOutput output;
 
-        float4 color = input.color;
+        float4 color = vi.color;
 
         if (let texture = objectData.albedo()) { // Since `albedo()` returns an Optional<Sampleable>, this is one of a few ways to get the true type. You can also do albedo().hasValue and albedo().value, of course.
-            color *= texture.sampleTexture(input.uv); // Some objects simply don't have a texture, such as clouds
+            color *= texture.sampleTexture(vi.uv); // Some objects simply don't have a texture, such as clouds
         }
 
         // This is equivalent to `if (objectIsCutout && alpha < 0.1) discard;`. It will determine if the object needs it.
@@ -68,9 +70,9 @@ struct BasicShader : Shader<VertexOutput, FragmentOutput> {
 
         ////////// Vanilla stuff //////////
 
-        float vanillaBlockLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, input.light.r);
-        float vanillaSkyLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, input.light.g);
-        float vanillaAO = pow(input.light.b, float(2.2));
+        float vanillaBlockLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, vi.light.r);
+        float vanillaSkyLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, vi.light.g);
+        float vanillaAO = pow(vi.light.b, float(2.2));
 
         ////////// LabPBR Normal //////////
 
@@ -78,7 +80,7 @@ struct BasicShader : Shader<VertexOutput, FragmentOutput> {
 
         // Sample LabPBR normal map
         if (let normalTex = objectData.normal()) {
-            labNormal = normalTex.sampleLevel(input.uv, 0);
+            labNormal = normalTex.sampleLevel(vi.uv, 0);
         }
 
         // Storing AO and Heightmap before modification
@@ -89,7 +91,7 @@ struct BasicShader : Shader<VertexOutput, FragmentOutput> {
         labNormal.xy = labNormal.xy * 2.0 - 1.0;
 	    labNormal.z = sqrt(1.0 - dot(labNormal.xy, labNormal.xy));
 
-        float3x3 tbn = computeTbnMatrix(input.normal, input.tangent);
+        float3x3 tbn = computeTbnMatrix(vi.normal, vi.tangent);
 
         labNormal.xyz = normalize(mul(labNormal.xyz, tbn));
 
@@ -99,7 +101,7 @@ struct BasicShader : Shader<VertexOutput, FragmentOutput> {
 
         // Sample LabPBR specular map
         if (let specularTex = objectData.specular()) {
-            labSpecular = specularTex.sampleTexture(input.uv);
+            labSpecular = specularTex.sampleTexture(vi.uv);
         }
 
         float roughness = pow(1.0 - (labSpecular.r), 2.0);
@@ -107,7 +109,7 @@ struct BasicShader : Shader<VertexOutput, FragmentOutput> {
 
         ////////// OUTPUTS //////////
         output.color = color;
-        output.flatNormal = float4(input.normal, 1.0);
+        output.flatNormal = float4(vi.normal, 1.0);
         output.lightmap = float4(vanillaBlockLight, vanillaSkyLight, vanillaAO, 1.0);
         output.labPBRNormal = float4(labNormal.xyz, labAO);
         output.labPBRSpecular = float4(roughness, labSpecular.gba);

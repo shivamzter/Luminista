@@ -21,7 +21,7 @@ Texture2D ambientScatteringTexture;
 
 static const float MOON_ILLUMINANCE = 0.25;
 static const float SUN_ILLUMINANCE = 128000;
-static const float3 blocklightColor = float3(1.0, 0.5, 0.08);
+// static const float3 blocklightColor = float3(1.0, 0.5, 0.08);
 
 public static const float EARTH_RADIUS_KM = 6400.0;
 public static const float CAMERA_ALTITUDE_KM = -100.0 / 1000.0;
@@ -76,7 +76,7 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
     float3 sunDir = normalize(ap.celestial.sunPosition);
     float3 moonDir = normalize(ap.celestial.moonPosition);
 
-    float3 skyLighting = ambientScatteringTexture.sampleLinear(texcoord).rgb;
+    float3 skyLight = ambientScatteringTexture.sampleLinear(texcoord).rgb;
 
     // Sample flatNormal
     float3 normals = flatNormalTexture[pos].rgb;
@@ -145,7 +145,23 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
 
     float3 directLight = shadow * (sunLighting + moonLighting);
 
-    float3 indirectLight = (skyLighting) * (ssao * vanillaAO * labAO);
+    float3 blockLight = color.rgb * labEmissive * vanillaBlockLight;
+
+    float ambientOcclusion = 1.0;
+    
+    // if (userSettings.VANILLA_AO) {
+    //     ambientOcclusion *= vanillaAO;
+    // }
+
+    // if (userSettings.SSAO) {
+    //     ambientOcclusion *= ssao;
+    // }
+
+    // if (userSettings.MATERIAL_AO) {
+    //     ambientOcclusion *= labAO;
+    // }
+    
+    float3 indirectLight = (skyLight + blockLight) * (vanillaAO * ssao * labAO);
 
     color.rgb *= directLight + indirectLight;
 

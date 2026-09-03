@@ -10,8 +10,10 @@ struct ShadowVOut {
 }
 
 struct ShadowShader : Shader<ShadowVOut, ShadowOut> {
-    static void emitVertex(Vertex v, out ShadowVOut data, out float4 pos) {
+    static void emitVertex(Vertex v, ObjectTransforms transforms, out ShadowVOut data, out float4 pos) {
         pos = v.pos();
+        pos = mul(transforms.view, float4(pos.xyz, 1.0));
+        pos = mul(transforms.projection, pos);
         data = ShadowVOut(v.uv());
     }
 
