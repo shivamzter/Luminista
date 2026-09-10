@@ -3,6 +3,8 @@ public module shadows;
 import aperture;
 import settings;
 
+internal Texture2DArray<float3> texShadowColor;
+
 static bool projectShadow(float3 playerPos, float3 normal, out int cascadeIndex, out float2 uv, out float depth) {
 
     uint cascadeCount = min(userSettings.SHADOW_CASCADE_COUNT, max(1u, ap.celestial.cascadeCount));
@@ -40,35 +42,26 @@ static bool projectShadow(float3 playerPos, float3 normal, out int cascadeIndex,
     return all(shadowPos >= 0.0 && shadowPos <= 1.0);
 }
 
-static float3 getShadow(float3 playerPos, float3 normal) {
+public static float3 getShadow(float3 playerPos, float3 normal) {
 
     int cascade;
     float2 uv;
     float depth;
 
     bool shadowScreenPos = projectShadow(playerPos, normal, cascade, uv, depth);
-
-    // float3 shadowCoord = float3(shadowScreenPos.xy, cascade);
-    // float4 shadowColor = texShadowColor.Sample(shadowCoord);
-
-    float transparentShadow = ap.shadow.compare(uv, cascade, depth);
-    float opaqueShadow = ap.opaqueShadow.compare(uv, cascade, depth);
-
-    // float transparentShadow = shadowMapFiltered.SampleCmp(shadowCoord, shadowScreenPos.z);
-    // float opaqueShadow = solidShadowMapFiltered.SampleCmp(shadowCoord, shadowScreenPos.z);
-
-    // if (transparentShadow == 1.0) {
-    //     shadow = float3(1.0);
-    // }
-    // else {
-    //     shadow = transparentShadow + shadowColor.rgb * (1.0 - shadowColor.a); 
-    // }
-
-    float3 shadow = transparentShadow;
     
-    if (opaqueShadow == 0.0) {
-        shadow = float3(0.0);
-    } 
+    float shadow = 0.0;
+    float3 color = float3(0.0);
 
-    return shadow;
+    float translucentDepth = ap.shadow.sampleNearest(uv, cascade);
+
+    float opaqueDepth = ap.opaqueShadow.sampleNearest(uv, cascade);
+
+    float3 translucentColor = texShadowColor.Sample(apt_nearestSampler, float3(uv, cascade));
+
+    shadow += ap.opaqueShadow.compare(uv, cascade, depth);
+
+    color += select(translucentDepth < depth && translucentDepth != opaqueDepth, translucentColor, float3(1.0));
+
+    return shadow * color;
 }

@@ -94,7 +94,7 @@ public float3 hammondDiffuse(float roughness, float nDotL, float nDotV, float nD
     return albedo * (single + albedo * multi);
 }
 
-public float3 disneyBRDF(float3 l, float3 v, float3 albedo, float reflectance, float3 n, float roughness, float radiance, out float debug) {
+public float3 disneyBRDF(float3 l, float3 v, float3 albedo, float reflectance, float3 n, float roughness, float3 radiance, out float debug) {
 
     float3 oL = float3(0.0);
 

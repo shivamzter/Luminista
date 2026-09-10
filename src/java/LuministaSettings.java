@@ -1,5 +1,3 @@
-import java.lang.foreign.Linker.Option;
-
 import dev.irisshaders.aperture.api.PackSettings;
 import dev.irisshaders.aperture.api.settings.OptionType;
 import dev.irisshaders.aperture.api.settings.SettingsManager;

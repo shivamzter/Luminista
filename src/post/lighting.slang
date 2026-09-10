@@ -19,8 +19,16 @@ Texture2D skyScatteringTexture;
 Texture2D skyTransmittanceTexture;
 Texture2D ambientScatteringTexture;
 
+public static const float SUN_ANGULAR_DIAMETER_DEG = 0.545;
+public static const float SUN_ANGULAR_DIAMETER_RAD = radians(SUN_ANGULAR_DIAMETER_DEG);
+public static const float SUN_ANGULAR_RADIUS_DEG = SUN_ANGULAR_DIAMETER_DEG / 2.0;
+public static const float SUN_ANGULAR_RADIUS_RAD = SUN_ANGULAR_DIAMETER_RAD / 2.0;
+public static const float SUN_SOLID_ANGLE = 2.0 * PI * (1.0 - cos(SUN_ANGULAR_RADIUS_DEG * (PI / 180.0)));
+public static const float3 SUN_ILLUMINANCE = float3(128000.0);
+public static const float3 SUN_LUMINANCE = SUN_ILLUMINANCE / SUN_SOLID_ANGLE;
+
 static const float MOON_ILLUMINANCE = 0.25;
-static const float SUN_ILLUMINANCE = 128000;
+// static const float SUN_ILLUMINANCE = 128000;
 // static const float3 blocklightColor = float3(1.0, 0.5, 0.08);
 
 public static const float EARTH_RADIUS_KM = 6400.0;
@@ -100,13 +108,21 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
     float porositySSS = specularTex.b;
     float labEmissive = specularTex.a;
 
+    float3 shadow = getShadow(playerSpacePos, normals);
+
     if (depth == 0.0) {
-        
+    
     float3 skyScattering = skyScatteringTexture.sampleLinear(texcoord).rgb;
     float3 skyTransmittance = skyTransmittanceTexture.sampleLinear(texcoord).rgb;
 
-    color.rgb = color.rgb * skyTransmittance + skyScattering;
+    float3 skyRayDir = normalize(playerSpacePos);
     
+    float sunViewDot = dot(skyRayDir, sunDir);
+    float3 sunDisc = (sunViewDot >= cos(SUN_ANGULAR_RADIUS_RAD)) ? SUN_LUMINANCE : float3(0.0);
+
+    color.rgb = sunDisc;
+    
+    color.rgb = color.rgb * skyTransmittance + skyScattering;
     } else {
 
     ////////// SSAO blur //////////
@@ -129,7 +145,7 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
 
     ////////////////////
 
-    float3 shadow = getShadow(playerSpacePos, normals);
+    
 
     float earthShadowSun = earthShadow(rayOrigin, sunDir);
     float earthShadowMoon = earthShadow(rayOrigin, moonDir);
@@ -161,12 +177,12 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
     //     ambientOcclusion *= labAO;
     // }
     
-    float3 indirectLight = (skyLight + blockLight) * (vanillaAO * ssao * labAO);
+    float3 indirectLight = (skyLight + blockLight);
 
     color.rgb *= directLight + indirectLight;
 
     output.color = encodeColorRgbm16F(color.rgb);
-    // output.color = float4(labNormal.rgb, 1.0);
+    // output.color = float4(float3(shadow), 1.0);
     // output.color = float4(float3(ssao * vanillaAO * labAO), 1.0);
     // output.color = encodeColorRgbm16F(float3(labEmissive));
     
@@ -174,6 +190,7 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
     }
 
     output.color = encodeColorRgbm16F(color.rgb);
+    // output.color = float4(float3(shadow), 1.0);
 
     return output;
 }

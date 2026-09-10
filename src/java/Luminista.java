@@ -7,8 +7,19 @@ import dev.irisshaders.aperture.api.renderer.*;
 
 public class Luminista implements ShaderPack {
 
+    public ArrayTexture shadowColor;
+
     @Override
     public void configurePipeline(Screen screen, PipelineConfig pipeline) {
+
+        final var translucentShadowUsages = new ProgramUsage[] {
+			ProgramUsage.SHADOW_TERRAIN_TRANSLUCENT,
+			ProgramUsage.SHADOW_ENTITY_TRANSLUCENT,
+			ProgramUsage.SHADOW_BLOCK_ENTITY_TRANSLUCENT,
+			ProgramUsage.SHADOW_PARTICLES_TRANSLUCENT
+		};
+
+        shadowColor = pipeline.arrayTexture("texShadowColor", TextureFormat.RG11B10_UFLOAT).shadowSize().create();
     
         var mainTexture = pipeline.texture2D("mainTexture", TextureFormat.RGBA16_SFLOAT).renderSize().create();
         var flatNormalTexture = pipeline.texture2D("flatNormalTexture", TextureFormat.RGBA16_SFLOAT).renderSize().create();
@@ -25,6 +36,11 @@ public class Luminista implements ShaderPack {
 
         if (pipeline.settings().getBoolValue("SHADOW_ENABLED"))
         pipeline.object(ProgramUsage.SHADOW, "object/shadow", "ShadowShader");
+
+        for (var usage : translucentShadowUsages) {
+            pipeline.object(usage, "object/shadow_translucent", "translucentShadowShader").writes("color", shadowColor);
+        }
+    
         pipeline.object(ProgramUsage.SKYBOX, "object/skybox", "BasicShader");
         pipeline.object(ProgramUsage.BASIC, "object/basic", "BasicShader").writes("color", mainTexture).writes("flatNormal", flatNormalTexture).writes("lightmap", lightmapTexture).writes("labPBRNormal", labPBRNormalTexture).writes("labPBRSpecular", labPBRSpecularTexture);
         pipeline.object(ProgramUsage.TRANSLUCENT, "object/basic", "BasicShader").writes("color", mainTexture).writes("flatNormal", flatNormalTexture).writes("lightmap", lightmapTexture).writes("labPBRNormal", labPBRNormalTexture).writes("labPBRSpecular", labPBRSpecularTexture);
@@ -51,5 +67,4 @@ public class Luminista implements ShaderPack {
         rendererConfig.setShadowDistance(rendererConfig.getSettings().getIntValue("SHADOW_DISTANCE"));
         rendererConfig.setShadowResolution(rendererConfig.getSettings().getIntValue("SHADOW_RESOLUTION"));
     }
-
 }
