@@ -145,8 +145,6 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
 
     ////////////////////
 
-    
-
     float earthShadowSun = earthShadow(rayOrigin, sunDir);
     float earthShadowMoon = earthShadow(rayOrigin, moonDir);
 
@@ -165,19 +163,19 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
 
     float ambientOcclusion = 1.0;
     
-    // if (userSettings.VANILLA_AO) {
-    //     ambientOcclusion *= vanillaAO;
-    // }
+    if (userSettings.VANILLA_AO) {
+        ambientOcclusion *= vanillaAO;
+    }
 
-    // if (userSettings.SSAO) {
-    //     ambientOcclusion *= ssao;
-    // }
+    if (userSettings.SSAO) {
+        ambientOcclusion *= ssao;
+    }
 
-    // if (userSettings.MATERIAL_AO) {
-    //     ambientOcclusion *= labAO;
-    // }
+    if (userSettings.MATERIAL_AO) {
+        ambientOcclusion *= labAO;
+    }
     
-    float3 indirectLight = (skyLight + blockLight);
+    float3 indirectLight = (skyLight + blockLight) * ambientOcclusion;
 
     color.rgb *= directLight + indirectLight;
 

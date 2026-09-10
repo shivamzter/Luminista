@@ -1,0 +1,22 @@
+screen.resourcePack = Resource Pack
+option.NORMAL_MAPPING = Normal Map
+option.MATERIAL_AO = Ambient Occlusion
+
+screen.lighting = Lighting
+
+screen.indirectLighting = Indirect Lighting
+option.SSAO = SSAO
+option.VANILLA_AO = VANILLA_AO
+
+screen.shadow = Shadows
+option.SHADOW_ENABLED = Shadows
+option.SHADOW_CASCADE_COUNT = Cascade Count
+option.SHADOW_RESOLUTION = Shadow Resolution
+option.SHADOW_DISTANCE = Shadow Distance
+
+screen.postProcess = Post Processing
+option.TONE_MAPPING = Tone Mapping
+
+screen.debug = Debug
+option.DEBUG_VIEW = Debug View
+

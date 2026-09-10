@@ -7,7 +7,17 @@ public class LuministaSettings implements PackSettings {
 
     @Override
     public void createSettings(SettingsManager manager, SettingsScreen screen) {
-        final var screenShadow = screen.child("shadow");
+		final var screenResourcePack = screen.child("resourcePack");
+		screenResourcePack.option("NORMAL_MAPPING", OptionType.boolType(true), false);
+		screenResourcePack.option("MATERIAL_AO", OptionType.boolType(true), false);
+
+		final var screenLighting = screen.child("lighting");
+
+		final var screenIndirectLighting = screenLighting.child("indirectLighting");
+		screenIndirectLighting.option("SSAO", OptionType.boolType(true), false);
+		screenIndirectLighting.option("VANILLA_AO", OptionType.boolType(true), false);
+
+		final var screenShadow = screenLighting.child("shadow");
         screenShadow.option("SHADOW_ENABLED", OptionType.boolType(true), false);
         screenShadow.option(
 			"SHADOW_CASCADE_COUNT",
@@ -25,16 +35,11 @@ public class LuministaSettings implements PackSettings {
 			false
 		);
 
-        final var screenDebugView = screen.child("debugView");
+		final var screenPostProcess = screen.child("postProcess");
+		screenPostProcess.option("TONE_MAPPING", OptionType.enumType("ToneMapping", 1, "Reinhard", "PBRNeutral", "ReinhardLuminance"), false);
+
+		final var screenDebugView = screen.child("debug");
         screenDebugView.option("DEBUG_VIEW", OptionType.boolType(false), false);
-
-		final var screenLabPBR = screen.child("labPBR");
-		screenLabPBR.option("NORMAL_MAPPING", OptionType.boolType(true), false);
-		screenLabPBR.option("MATERIAL_AO", OptionType.boolType(true), false);
-
-		final var screenLighting = screen.child("lighting");
-		screenLighting.option("SSAO", OptionType.boolType(true), false);
-		screenLighting.option("VANILLA_AO", OptionType.boolType(true), false);
     }
     
 }
