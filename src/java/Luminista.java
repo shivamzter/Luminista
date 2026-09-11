@@ -16,20 +16,22 @@ public class Luminista implements ShaderPack {
 			ProgramUsage.SHADOW_BLOCK_ENTITY_TRANSLUCENT,
 			ProgramUsage.SHADOW_PARTICLES_TRANSLUCENT
 		};
-
+        
         shadowColor = pipeline.arrayTexture("texShadowColor", TextureFormat.RG11B10_UFLOAT).shadowSize().create();
     
         var mainTexture = pipeline.texture2D("mainTexture", TextureFormat.RGBA16_SFLOAT).renderSize().create();
 
         if (pipeline.settings().getBoolValue("SHADOW_ENABLED"))
-        pipeline.object(ProgramUsage.SHADOW, "object/shadow", "ShadowShader");
+        pipeline.object(ProgramUsage.SHADOW, "program/object/shadow_opaque", "ShadowShader");
 
         for (var usage : translucentShadowUsages) {
-            pipeline.object(usage, "object/shadow_translucent", "translucentShadowShader").writes("color", shadowColor);
+            pipeline.object(usage, "program/object/shadow_translucent", "translucentShadowShader").writes("color", shadowColor);
         }
 
-        pipeline.object(ProgramUsage.BASIC, "object/basic", "BasicShader").writes("color", mainTexture);
-        pipeline.object(ProgramUsage.TRANSLUCENT, "object/basic", "BasicShader").writes("color", mainTexture);
+        pipeline.object(ProgramUsage.BASIC, "program/object/basic", "BasicShader").writes("color", mainTexture);
+        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/basic", "BasicShader").writes("color", mainTexture);
+
+        pipeline.combinationPass("program/post/combination");
     }
 
     @Override
