@@ -64,4 +64,7 @@ public static float3 getShadow(float3 playerPos, float3 normal) {
     color += select(translucentDepth < depth && translucentDepth != opaqueDepth, translucentColor, float3(1.0));
 
     return shadow * color;
+    // return opaqueDepth;
+    // return translucentDepth;
+    // return translucentColor;
 }

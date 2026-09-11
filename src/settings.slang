@@ -7,7 +7,7 @@ enum ToneMapping {
     ReinhardLuminance
 };
 
-internal extern static const bool value_DEBUG_VIEW;
+internal extern static const bool value_AUTO_EXPOSURE;
 internal extern static const bool value_MATERIAL_AO;
 internal extern static const bool value_NORMAL_MAPPING;
 internal extern static const int value_SHADOW_CASCADE_COUNT;
@@ -19,7 +19,11 @@ internal extern static const int value_TONE_MAPPING;
 internal extern static const bool value_VANILLA_AO;
 
 struct Settings {
-    static const bool DEBUG_VIEW = value_DEBUG_VIEW;
+    float MANUAL_EXPOSURE;
+    float SSAO_RADIUS;
+    int SSAO_SAMPLE_COUNT;
+    float VANILLA_AO_INTENSITY;
+    static const bool AUTO_EXPOSURE = value_AUTO_EXPOSURE;
     static const bool MATERIAL_AO = value_MATERIAL_AO;
     static const bool NORMAL_MAPPING = value_NORMAL_MAPPING;
     static const int SHADOW_CASCADE_COUNT = value_SHADOW_CASCADE_COUNT;

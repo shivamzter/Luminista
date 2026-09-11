@@ -14,7 +14,11 @@ float4 main(float2 pos: SV_Position) {
     
     color.rgb = decodeColorRgbm16F(color.rgba);
 
-    color.rgb *= exposure;
+    if (!userSettings.AUTO_EXPOSURE) {
+        color.rgb *= userSettings.MANUAL_EXPOSURE;
+    } else {
+        color.rgb *= exposure;
+    }
 
     if (userSettings.TONE_MAPPING == ToneMapping.Reinhard) {
         color.rgb = color.rgb / (1.0 + color.rgb);

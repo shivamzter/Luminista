@@ -1,5 +1,6 @@
 import aperture;
 import helpers.util;
+import settings;
 
 Texture2D flatNormalTexture;
 Texture2D lightmapTexture;
@@ -8,10 +9,10 @@ struct FragmentOutput {
     float4 lightmap;
 }
 
-static const float RADIUS = 0.5;
-static const int SAMPLE_COUNT = 16;
+static float RADIUS = userSettings.SSAO_RADIUS;
+static int SAMPLE_COUNT = userSettings.SSAO_SAMPLE_COUNT;
 
-static const float3 samples[SAMPLE_COUNT] = {
+static float3 samples[16] = {
 	float3(-0,-0.05,0.09),
     float3(0.06,-0.03,0.07),
     float3(-0.09,0.02,0.05),
@@ -71,7 +72,7 @@ public float ssao(float3 fragPos, float3 normalView, float radius, float2 pixelC
         float3 offset = projectAndDivide(ap.camera.projection, samplePos);
         offset.xy = offset.xy * 0.5 + 0.5;
 
-        float sampleDepth = ap.depth.sampleLinear(offset.xy);
+        float sampleDepth = ap.opaqueDepth.sampleLinear(offset.xy);
 
         float3 sampleClip = float3(offset.xy * 2.0 - 1.0, sampleDepth);
         float3 sampleView = projectAndDivide(ap.camera.projectionInv, sampleClip);

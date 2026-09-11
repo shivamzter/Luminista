@@ -164,7 +164,7 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
     float ambientOcclusion = 1.0;
     
     if (userSettings.VANILLA_AO) {
-        ambientOcclusion *= vanillaAO;
+        ambientOcclusion *= lerp(1.0, vanillaAO, userSettings.VANILLA_AO_INTENSITY);
     }
 
     if (userSettings.SSAO) {
@@ -179,9 +179,9 @@ FragmentOutput applyLighting(float2 pos: SV_Position) {
 
     color.rgb *= directLight + indirectLight;
 
+    // output.color = float4(shadow.rgb, 1.0);
     output.color = encodeColorRgbm16F(color.rgb);
-    // output.color = float4(float3(shadow), 1.0);
-    // output.color = float4(float3(ssao * vanillaAO * labAO), 1.0);
+    // output.color = encodeColorRgbm16F(float3(ambientOcclusion));
     // output.color = encodeColorRgbm16F(float3(labEmissive));
     
     return output;
