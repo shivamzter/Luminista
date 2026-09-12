@@ -37,6 +37,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         color.rgb *= sunLighting;
 
+        } else {
+            float4 skyColor = pow(ap.world.skyColor, 2.2);
+            color.rgb = skyColor.rgb;
         }
 
         tex_main[coord] = color;

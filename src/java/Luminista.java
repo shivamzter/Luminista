@@ -35,7 +35,7 @@ public class Luminista implements ShaderPack {
         var sizeX_16 = Math.ceilDiv(screen.renderWidth(), 16);
         var sizeY_16 = Math.ceilDiv(screen.renderHeight(), 16);
 
-        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/lighting/deferred", "main").dispatch2D(sizeX_16, sizeY_16); //Global histogram
+        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/lighting/deferred", "main").dispatch2D(sizeX_16, sizeY_16);
 
         // pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("histogramAverage", "compute/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
         // pipeline.object(ProgramUsage.SKYBOX, "program/object/basic", "BasicShader").writes("color", tex_main);

@@ -3,7 +3,7 @@ public module shadow;
 import aperture;
 import settings;
 
-internal Texture2DArray<float3> texShadowColor;
+internal Texture2DArray<float3> tex_shadowColor;
 
 static bool projectShadow(float3 playerPos, float3 normal, out int cascadeIndex, out float2 uv, out float depth) {
 
@@ -57,7 +57,7 @@ public static float3 getShadow(float3 playerPos, float3 normal) {
 
     float opaqueDepth = ap.opaqueShadow.sampleNearest(uv, cascade);
 
-    float3 translucentColor = texShadowColor.Sample(apt_nearestSampler, float3(uv, cascade));
+    float3 translucentColor = tex_shadowColor.Sample(apt_nearestSampler, float3(uv, cascade));
 
     shadow += ap.opaqueShadow.compare(uv, cascade, depth);
 
