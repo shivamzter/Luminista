@@ -3,35 +3,34 @@ import object_shader;
 
 // This will not be documented. See basic.slang for what everything here does.
 
-struct ShadowOut {
+struct FragmentOutput {
     float4 color;
 }
 
-struct ShadowVOut {
+struct VertexOutput {
     float2 uv : TEXCOORD;
     float4 color : COLOR;
 }
 
-struct translucentShadowShader : Shader<ShadowVOut, ShadowOut> {
-    static void emitVertex(Vertex v, ObjectTransforms transforms, out ShadowVOut vOut, out float4 pos) {
-        pos = v.pos();
-        pos = mul(transforms.view, float4(pos.xyz, 1.0));
-        pos = mul(transforms.projection, pos);
-        vOut.uv = v.uv();
-        vOut.color = v.color();
+struct ShadowTranslucentShader : Shader<VertexOutput, FragmentOutput> {
+    static void emitVertex(Vertex input, ObjectTransforms transforms, out VertexOutput vOut, out float4 pos) {
+        
+        pos = mul(transforms.projection, mul(transforms.view, input.pos()));
+
+        vOut.uv = input.uv();
+        vOut.color = input.color();
     }
 
-    static ShadowOut shadeSurface(PixelData objectData, ShadowVOut vi) {
+    static FragmentOutput shadeSurface(PixelData objectData, VertexOutput vIn) {
 
-        float4 color = vi.color;
+        float4 color = vIn.color;
 
         if (let texture = objectData.albedo()) {
-            color *= texture.sampleTexture(vi.uv);
+            color *= texture.sampleTexture(vIn.uv);
         }
 
         ap.discardCutout(color);
 
-
-        return ShadowOut(color);
+        return FragmentOutput(color);
     }
 }

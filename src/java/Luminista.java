@@ -19,19 +19,28 @@ public class Luminista implements ShaderPack {
         
         shadowColor = pipeline.arrayTexture("texShadowColor", TextureFormat.RG11B10_UFLOAT).shadowSize().create();
     
-        var mainTexture = pipeline.texture2D("mainTexture", TextureFormat.RGBA16_SFLOAT).renderSize().create();
+        var tex_main = pipeline.texture2D("tex_main", TextureFormat.RGBA16_SFLOAT).renderSize().create();
+        var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGBA16_SFLOAT).renderSize().create();
 
         if (pipeline.settings().getBoolValue("SHADOW_ENABLED"))
-        pipeline.object(ProgramUsage.SHADOW, "program/object/shadow_opaque", "ShadowShader");
+        pipeline.object(ProgramUsage.SHADOW, "program/object/shadow_opaque", "ShadowOpaqueShader").writes("color", shadowColor);
 
         for (var usage : translucentShadowUsages) {
-            pipeline.object(usage, "program/object/shadow_translucent", "translucentShadowShader").writes("color", shadowColor);
+            pipeline.object(usage, "program/object/shadow_translucent", "ShadowTranslucentShader").writes("color", shadowColor);
         }
 
-        pipeline.object(ProgramUsage.BASIC, "program/object/basic", "BasicShader").writes("color", mainTexture);
-        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/basic", "BasicShader").writes("color", mainTexture);
+        pipeline.object(ProgramUsage.BASIC, "program/object/deferred", "DeferredShader").writes("color", tex_main).writes("normal", tex_normal);
+        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/deferred", "DeferredShader").writes("color", tex_main).writes("normal", tex_normal);
 
-        pipeline.combinationPass("program/post/combination");
+        var sizeX_16 = Math.ceilDiv(screen.renderWidth(), 16);
+        var sizeY_16 = Math.ceilDiv(screen.renderHeight(), 16);
+
+        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("histogram", "program/lighting/deferred", "main").dispatch2D(sizeX_16, sizeY_16); //Global histogram
+
+        // pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("histogramAverage", "compute/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
+        // pipeline.object(ProgramUsage.SKYBOX, "program/object/basic", "BasicShader").writes("color", tex_main);
+
+        pipeline.combinationPass("program/post/final");
     }
 
     @Override
