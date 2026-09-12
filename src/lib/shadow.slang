@@ -1,4 +1,4 @@
-public module shadows;
+public module shadow;
 
 import aperture;
 import settings;
