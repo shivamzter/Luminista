@@ -17,7 +17,7 @@ struct VertexOutput {
     float3 light;
 }
 
-struct DeferredShader : Shader<VertexOutput, FragmentOutput> {
+struct DeferredOpaqueShader : Shader<VertexOutput, FragmentOutput> {
     static void emitVertex(Vertex input, ObjectTransforms transforms, out VertexOutput output, out float4 pos) {
         pos = mul(transforms.projection, mul(transforms.view, input.pos()));
 

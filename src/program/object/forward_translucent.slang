@@ -31,7 +31,7 @@ struct VertexOutput {
 // 	return saturate((x - min) / (max - min));
 // }
 
-struct BasicShader : Shader<VertexOutput, FragmentOutput> {
+struct ForwardTranslucentShader : Shader<VertexOutput, FragmentOutput> {
     static void emitVertex(Vertex input, ObjectTransforms transforms, out VertexOutput output, out float4 pos) {
         pos = mul(transforms.projection, mul(transforms.view, input.pos()));
 

@@ -10,6 +10,9 @@ public class Luminista implements ShaderPack {
     @Override
     public void configurePipeline(Screen screen, PipelineConfig pipeline) {
 
+        var sizeX_16 = Math.ceilDiv(screen.renderWidth(), 16);
+        var sizeY_16 = Math.ceilDiv(screen.renderHeight(), 16);
+
         final var translucentShadowUsages = new ProgramUsage[] {
 			ProgramUsage.SHADOW_TERRAIN_TRANSLUCENT,
 			ProgramUsage.SHADOW_ENTITY_TRANSLUCENT,
@@ -29,14 +32,12 @@ public class Luminista implements ShaderPack {
             pipeline.object(usage, "program/object/shadow_translucent", "ShadowTranslucentShader").writes("color", tex_shadowColor);
         }
 
-        pipeline.object(ProgramUsage.BASIC, "program/object/deferred", "DeferredShader").writes("color", tex_main).writes("normal", tex_normal);
-        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/deferred", "DeferredShader").writes("color", tex_main).writes("normal", tex_normal);
-
-        var sizeX_16 = Math.ceilDiv(screen.renderWidth(), 16);
-        var sizeY_16 = Math.ceilDiv(screen.renderHeight(), 16);
-
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/lighting/deferred", "main").dispatch2D(sizeX_16, sizeY_16);
 
+        pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal);
+        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main).writes("normal", tex_normal);
+
+        
         // pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("histogramAverage", "compute/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
         // pipeline.object(ProgramUsage.SKYBOX, "program/object/basic", "BasicShader").writes("color", tex_main);
 
