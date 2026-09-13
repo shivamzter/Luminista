@@ -15,12 +15,12 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
     if (all(coord < ap.game.renderSize)) {
 
+        float2 texcoord = (coord + 0.5) / ap.game.renderSize;
+
         float4 color = tex_main[coord];
         float4 normal = tex_normal[coord];
 
         float depth = ap.opaqueDepth[coord];
-
-        float2 texcoord = (coord + 0.5) / ap.game.renderSize;
 
         // Space conversions
         float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
@@ -35,7 +35,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float3 sunLighting = shadow * max(0.0, dot(normal.xyz, sunLightPos));
 
-        color.rgb *= sunLighting;
+        color.rgb = sunLighting;
 
         } else {
             float4 skyColor = pow(ap.world.skyColor, 2.2);

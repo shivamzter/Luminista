@@ -23,6 +23,8 @@ struct ShadowTranslucentShader : Shader<VertexOutput, FragmentOutput> {
 
     static FragmentOutput shadeSurface(PixelData objectData, VertexOutput vIn) {
 
+        FragmentOutput output;
+
         float4 color = vIn.color;
 
         if (let texture = objectData.albedo()) {
@@ -31,6 +33,8 @@ struct ShadowTranslucentShader : Shader<VertexOutput, FragmentOutput> {
 
         ap.discardCutout(color);
 
-        return FragmentOutput(color);
+        output.color = color;
+        
+        return output;
     }
 }
