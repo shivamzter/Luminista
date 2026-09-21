@@ -28,10 +28,8 @@ struct ShadowTranslucentShader : Shader<VertexOutput, FragmentOutput> {
         float4 color = vIn.color;
 
         if (let texture = objectData.albedo()) {
-            color *= texture.sampleTexture(vIn.uv);
+           color *= texture.sampleTexture(vIn.uv);
         }
-
-        ap.discardCutout(color);
 
         output.color = color;
         

@@ -41,8 +41,6 @@ struct DeferredOpaqueShader : Shader<VertexOutput, FragmentOutput> {
         // This is equivalent to `if (objectIsCutout && alpha < 0.1) discard;`. It will determine if the object needs it.
         ap.discardCutout(color);
 
-        color.rgb = pow(color.rgb, float3(2.2));
-
         ////////// OUTPUTS //////////
         output.color = color;
         output.normal = float4(vIn.normal, 1.0);

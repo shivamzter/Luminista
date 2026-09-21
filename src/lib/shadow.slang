@@ -53,16 +53,16 @@ public static float3 getShadow(float3 playerPos, float3 normal) {
     float shadow = 0.0;
     float3 color = float3(0.0);
 
-    float translucentDepth = ap.shadow.sampleNearest(uv, cascade);
-    float opaqueDepth = ap.opaqueShadow.sampleNearest(uv, cascade);
+    float translucentDepth = ap.shadow.sampleLinear(uv, cascade);
+    float opaqueDepth = ap.opaqueShadow.sampleLinear(uv, cascade);
+
+    translucentDepth = translucentDepth > depth ? 1.0 : 0.0;
+    opaqueDepth = opaqueDepth > depth ? 1.0 : 0.0;
 
     float3 translucentColor = tex_shadowColor.Sample(apt_nearestSampler, float3(uv, cascade));
 
-    // ap.opaqueShadow.compare(uv, cascade, depth);
+    color += select(translucentDepth < depth && translucentDepth != opaqueDepth, translucentColor, float3(1.0));
+    shadow += opaqueDepth;
 
-    float transparentShadow = step(depth, translucentDepth);
-
-    float opaqueShadow = step(depth, opaqueDepth);
-
-    return translucentColor;
+    return shadow;
 }

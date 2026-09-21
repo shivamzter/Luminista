@@ -15,16 +15,17 @@ public class Luminista implements ShaderPack {
         var sizeY_16 = Math.ceilDiv(screen.renderHeight(), 16);
 
         // Textures
-        tex_shadowColor = pipeline.arrayTexture("tex_shadowColor", TextureFormat.RG11B10_UFLOAT).shadowSize().create();
-
-        pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);
+        tex_shadowColor = pipeline.arrayTexture("tex_shadowColor", TextureFormat.RGBA8_UNORM).shadowSize().create();
     
         var tex_main = pipeline.texture2D("tex_main", TextureFormat.RGBA16_SFLOAT).renderSize().create();
         var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGBA16_SFLOAT).renderSize().create();
         
-        // Deferred lighting pass
+        // Pipeline stages
+        pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);
+
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/composite/lightOpaqueObjects", "main").dispatch2D(sizeX_16, sizeY_16);
 
+        // Object passes
         pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal);
         pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main).writes("normal", tex_normal);
 
@@ -38,7 +39,7 @@ public class Luminista implements ShaderPack {
 			ProgramUsage.SHADOW_PARTICLES_TRANSLUCENT
 		    };
 
-            pipeline.object(ProgramUsage.SHADOW, "program/object/shadow_opaque", "ShadowOpaqueShader").writes("color", tex_shadowColor);
+            pipeline.object(ProgramUsage.SHADOW, "program/object/shadow_opaque", "ShadowOpaqueShader");
 
             for (var usage : translucentShadowUsages) {
             pipeline.object(usage, "program/object/shadow_translucent", "ShadowTranslucentShader").writes("color", tex_shadowColor, new BlendMode(BlendFactors.SRC_ALPHA, BlendFactors.ONE_MINUS_SRC_ALPHA, BlendFactors.ONE, BlendFactors.ONE_MINUS_SRC_ALPHA));
@@ -55,5 +56,6 @@ public class Luminista implements ShaderPack {
         rendererConfig.setShadowCascades(rendererConfig.getSettings().getIntValue("SHADOW_CASCADE_COUNT"));
         rendererConfig.setShadowDistance(rendererConfig.getSettings().getIntValue("SHADOW_DISTANCE"));
         rendererConfig.setShadowResolution(rendererConfig.getSettings().getIntValue("SHADOW_RESOLUTION"));
+        rendererConfig.enableRT();
     }
 }

@@ -18,8 +18,6 @@ struct ShadowOpaqueShader : Shader<VertexOutput, FragmentOutput> {
     }
 
     static FragmentOutput shadeSurface(PixelData objectData, VertexOutput vIn) {
-        
-        FragmentOutput output;
 
         if (let texture = objectData.albedo()) {
             ap.discardCutout(texture.sampleTexture(vIn.uv));

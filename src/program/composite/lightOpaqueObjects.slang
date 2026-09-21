@@ -1,5 +1,6 @@
 import aperture;
-import lib.shadow;
+// import lib.shadow;
+import lib.rt_shadows;
 
 RWTexture2D tex_main;
 RWTexture2D tex_normal;
@@ -31,14 +32,14 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         if (depth > 0.0) {
 
-        float3 shadow = getShadow(playerPos, normal.xyz);
+            float3 shadow = getShadow(playerPos, normal.xyz);
 
-        float3 sunLighting = shadow * max(0.0, dot(normal.xyz, sunLightPos));
+            float3 sunLighting = shadow * max(0.0, dot(normal.xyz, sunLightPos));
 
-        color.rgb = sunLighting;
+            color.rgb *= sunLighting;
 
         } else {
-            float4 skyColor = pow(ap.world.skyColor, 2.2);
+            float4 skyColor = ap.world.skyColor;
             color.rgb = skyColor.rgb;
         }
 
