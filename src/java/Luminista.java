@@ -18,7 +18,7 @@ public class Luminista implements ShaderPack {
         tex_shadowColor = pipeline.arrayTexture("tex_shadowColor", TextureFormat.RGBA8_UNORM).shadowSize().create();
     
         var tex_main = pipeline.texture2D("tex_main", TextureFormat.RGBA16_SFLOAT).renderSize().create();
-        var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGBA16_SFLOAT).renderSize().create();
+        var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGB10A2_UNORM).renderSize().create();
         
         // Pipeline stages
         pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);

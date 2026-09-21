@@ -1,6 +1,7 @@
 import aperture; // Required import. Always.
 import object_shader; // Required import for object shaders. Not recommended otherwise.
 import settings; // Contains your shader settings, both realtime and compile time.
+import helper.util;
 
 // What you intend to output (color). Name these with what you have put as the bindings in Java.
 struct FragmentOutput {
@@ -43,7 +44,7 @@ struct DeferredOpaqueShader : Shader<VertexOutput, FragmentOutput> {
 
         ////////// OUTPUTS //////////
         output.color = color;
-        output.normal = float4(vIn.normal, 1.0);
+        output.normal = float4(octEncode(vIn.normal), 1.0, 1.0);
 
         return output;
     }

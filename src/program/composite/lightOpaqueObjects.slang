@@ -1,6 +1,7 @@
 import aperture;
 // import lib.shadow;
 import lib.rt_shadows;
+import helper.util;
 
 RWTexture2D tex_main;
 RWTexture2D tex_normal;
@@ -20,6 +21,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float4 color = tex_main[coord];
         float4 normal = tex_normal[coord];
+        normal.xyz = octDecode(normal.xy);
 
         float depth = ap.opaqueDepth[coord];
 
