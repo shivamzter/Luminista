@@ -14,6 +14,9 @@ public class Luminista implements ShaderPack {
         var sizeX_16 = Math.ceilDiv(screen.renderWidth(), 16);
         var sizeY_16 = Math.ceilDiv(screen.renderHeight(), 16);
 
+        Buffer luminanceHistogramBuffer = pipeline.buffer("luminanceHistogramBuffer", Integer.BYTES * 256);
+        Buffer exposureBuffer = pipeline.buffer("exposureBuffer", Integer.BYTES * 2);
+
         // Textures
         tex_shadowColor = pipeline.arrayTexture("tex_shadowColor", TextureFormat.RGBA8_UNORM).shadowSize().create();
     
@@ -24,6 +27,8 @@ public class Luminista implements ShaderPack {
         pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);
 
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/composite/lightOpaqueObjects", "main").dispatch2D(sizeX_16, sizeY_16);
+        pipeline.stage(ProgramStage.POST_RENDER).compute("histogram", "program/composite/histogram", "applyHistogram").dispatch3D(sizeX_16, sizeY_16, 1); //Global histogram
+        pipeline.stage(ProgramStage.POST_RENDER).compute("histogramAverage", "program/composite/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
 
         // Object passes
         pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal);

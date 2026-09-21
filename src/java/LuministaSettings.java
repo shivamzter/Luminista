@@ -7,16 +7,7 @@ public class LuministaSettings implements PackSettings {
 
     @Override
     public void createSettings(SettingsManager manager, SettingsScreen screen) {
-		final var screenResourcePack = screen.child("resourcePack");
-		screenResourcePack.option("NORMAL_MAPPING", OptionType.boolType(true), false);
-		screenResourcePack.option("MATERIAL_AO", OptionType.boolType(true), false);
-
 		final var screenIndirectLighting = screen.child("indirectLighting");
-
-		final var screenSSAO = screenIndirectLighting.child("ssao");
-		screenSSAO.option("SSAO", OptionType.boolType(true), false);
-		screenSSAO.option("SSAO_SAMPLE_COUNT", OptionType.intType(1, 16, 1, 16), true);
-		screenSSAO.option("SSAO_RADIUS", OptionType.floatType(0.1f, 5.0f, 0.1f, 1.0f), true);
 
 		final var screenVanillaAO = screenIndirectLighting.child("vanillaAO");
 		screenVanillaAO.option("VANILLA_AO", OptionType.boolType(true), false);

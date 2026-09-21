@@ -20,6 +20,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float2 texcoord = (coord + 0.5) / ap.game.renderSize;
 
         float4 color = tex_main[coord];
+        color.rgb = decodeColorRgbm16F(color);
         float4 normal = tex_normal[coord];
         normal.xyz = octDecode(normal.xy);
 
@@ -36,7 +37,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             float3 shadow = getShadow(playerPos, normal.xyz);
 
-            float3 sunLighting = shadow * max(0.0, dot(normal.xyz, sunLightPos));
+            float3 sunLighting = lerp(0.3, 1.0, shadow * max(0.0, dot(normal.xyz, sunLightPos)));
 
             color.rgb *= sunLighting;
 
@@ -45,6 +46,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
             color.rgb = skyColor.rgb;
         }
 
-        tex_main[coord] = color;
+        tex_main[coord] = encodeColorRgbm16F(color.rgb);
     }
 }
