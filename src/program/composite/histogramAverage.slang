@@ -27,7 +27,7 @@ float maxLuminance = 1.2f * pow (2.0f, EV100);
 return 1.0/ maxLuminance;
 }
 
-RWTexture2D mainTexture;
+RWTexture2D tex_main;
 RWStructuredBuffer<uint> luminanceHistogramBuffer;
 RWStructuredBuffer<float2> exposureBuffer;
 

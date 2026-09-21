@@ -1,7 +1,7 @@
 import aperture;
 import helper.util;
 
-RWTexture2D mainTexture;
+RWTexture2D tex_main;
 RWStructuredBuffer<uint> luminanceHistogramBuffer;
 
 groupshared uint histogramShared[256];
@@ -42,7 +42,7 @@ void applyHistogram(uint3 globalThreadId: SV_DispatchThreadID, uint groupIndex: 
 
     if (all(globalThreadId.xy < ap.game.renderSize)) {
 
-        float4 hdrColor = mainTexture[int2(globalThreadId.xy)];
+        float4 hdrColor = tex_main[int2(globalThreadId.xy)];
         hdrColor.rgb = decodeColorRgbm16F(hdrColor);
         uint binIndex = colorToBin(hdrColor.rgb, u_params.x, u_params.y);
 
