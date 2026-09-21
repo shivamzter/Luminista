@@ -25,13 +25,12 @@ public class Luminista implements ShaderPack {
 
         pipeline.texture2D("tex_skyScattering", TextureFormat.RGBA16_SFLOAT).size(screen.renderWidth(), screen.renderHeight()).create();
         pipeline.texture2D("tex_skyTransmittance", TextureFormat.RGBA16_SFLOAT).size(screen.renderWidth(), screen.renderHeight()).create();
-        pipeline.texture2D("tex_skyAmbient", TextureFormat.RGBA16_SFLOAT).size(screen.renderWidth(), screen.renderHeight()).create();
+        pipeline.texture2D("tex_skyAmbient", TextureFormat.RGBA16_SFLOAT).size(1, 1).create();
         
         // Pipeline stages
         pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);
 
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("sky", "program/composite/sky", "main").dispatch2D(sizeX_16, sizeY_16);
-        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("ambient", "program/composite/ambient", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/composite/lightOpaqueObjects", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.POST_RENDER).compute("histogram", "program/composite/histogram", "applyHistogram").dispatch3D(sizeX_16, sizeY_16, 1); //Global histogram
         pipeline.stage(ProgramStage.POST_RENDER).compute("histogramAverage", "program/composite/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average

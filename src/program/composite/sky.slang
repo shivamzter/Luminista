@@ -6,6 +6,7 @@ import lib.atmosphere;
 
 RWTexture2D tex_skyScattering;
 RWTexture2D tex_skyTransmittance;
+RWTexture2D tex_skyAmbient;
 
 [shader("compute")]
 [numthreads(16, 16)]
@@ -30,6 +31,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             tex_skyScattering[coord] = float4(ray.scattering, 1.0);
             tex_skyTransmittance[coord] = float4(ray.transmittance, 1.0);
+        } else {
+            marchPrimaryRay ray = rayMarch(playerPos + playerSpaceRayOrigin, float3(0.0, 1.0, 0.0));
+            tex_skyAmbient[coord] = float4(ray.scattering, 1.0);
         }
     }
 }
