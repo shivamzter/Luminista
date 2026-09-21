@@ -1,3 +1,5 @@
+public static const float PI = 3.14159265359;
+
 // https://knarkowicz.wordpress.com/2014/04/16/octahedron-normal-vector-encoding/
 public float2 octWrap(float2 v)
 {
@@ -31,4 +33,13 @@ public float4 encodeColorRgbm16F(float3 color) {
 
 public float3 decodeColorRgbm16F(float4 colorAndMagnitude) {
     return colorAndMagnitude.rgb * colorAndMagnitude.a;
+}
+
+public float3 projectAndDivide(float4x4 invProj, float3 pos) {
+    float4 homePos = mul(invProj, float4(pos, 1.0));
+    return homePos.xyz / homePos.w;
+}
+
+public float pow2(float x) {
+    return (x * x);
 }

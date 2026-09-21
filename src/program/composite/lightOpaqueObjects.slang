@@ -5,11 +5,11 @@ import helper.util;
 
 RWTexture2D tex_main;
 RWTexture2D tex_normal;
+RWTexture2D tex_skyScattering;
+RWTexture2D tex_skyTransmittance;
+RWTexture2D tex_skyAmbient;
 
-public float3 projectAndDivide(float4x4 invProj, float3 pos) {
-    float4 homePos = mul(invProj, float4(pos, 1.0));
-    return homePos.xyz / homePos.w;
-}
+public static const float3 SUN_ILLUMINANCE = float3(128000.0);
 
 [shader("compute")]
 [numthreads(16, 16)]
@@ -35,15 +35,19 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         if (depth > 0.0) {
 
+            float3 skyAmbient = tex_skyAmbient[coord].rgb;
+
             float3 shadow = getShadow(playerPos, normal.xyz);
 
-            float3 sunLighting = lerp(0.3, 1.0, shadow * max(0.0, dot(normal.xyz, sunLightPos)));
+            float3 sunLighting = shadow * SUN_ILLUMINANCE * max(0.0, dot(normalize(normal.xyz), sunLightPos)) / PI;
 
-            color.rgb *= sunLighting;
+            color.rgb *= sunLighting + skyAmbient;
 
         } else {
-            float4 skyColor = ap.world.skyColor;
-            color.rgb = skyColor.rgb;
+            float3 skyScattering = tex_skyScattering[coord].rgb;
+            float3 skyTransmittance = tex_skyTransmittance[coord].rgb;
+
+            color.rgb = color.rgb * skyTransmittance + skyScattering;
         }
 
         tex_main[coord] = encodeColorRgbm16F(color.rgb);

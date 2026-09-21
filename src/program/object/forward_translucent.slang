@@ -1,6 +1,7 @@
 import aperture; // Required import. Always.
 import object_shader; // Required import for object shaders. Not recommended otherwise.
 import settings; // Contains your shader settings, both realtime and compile time.
+import helper.util;
 
 // What you intend to output (color). Name these with what you have put as the bindings in Java.
 struct FragmentOutput {
@@ -105,7 +106,7 @@ struct ForwardTranslucentShader : Shader<VertexOutput, FragmentOutput> {
         // color.rgb *= vanillaAO;
 
         ////////// OUTPUTS //////////
-        output.color = color;
+        output.color = encodeColorRgbm16F(color.rgb);
 
         return output;
     }

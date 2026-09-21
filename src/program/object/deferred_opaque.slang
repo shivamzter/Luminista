@@ -43,7 +43,7 @@ struct DeferredOpaqueShader : Shader<VertexOutput, FragmentOutput> {
         ap.discardCutout(color);
 
         ////////// OUTPUTS //////////
-        output.color = color;
+        output.color = encodeColorRgbm16F(color.rgb);
         output.normal = float4(octEncode(vIn.normal), 1.0, 1.0);
 
         return output;
