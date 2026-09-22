@@ -39,14 +39,14 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
             float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
 
-            float3 playerSpacePos = playerToAtmosphere(float3(0.0, ap.camera.position.y, 0.0));
+            float3 cameraAtmosPos = playerToAtmosphere(float3(0.0, ap.camera.position.y, 0.0));
 
             float3 playerSpaceRayDirection = normalize(playerPos);
 
             float2 skyViewUV = getUvFromLonLatNonLinear(getLonLatFromDir(playerSpaceRayDirection));
             skyViewUV = fromUnitToSubUvs(skyViewUV, float2(SKY_VIEW_LUT_SIZE));
 
-            float3 transmittance = computeTransmittanceToCelestialLight(playerSpacePos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
+            float3 transmittance = computeTransmittanceToCelestialLight(cameraAtmosPos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
 
             float3 skyScattering = decodeColorRgbm16F(tex_skyViewLUT.sampleLinear(skyViewUV));
             float3 skyTransmittance = transmittance;

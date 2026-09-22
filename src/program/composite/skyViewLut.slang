@@ -3,6 +3,7 @@ import helper.util;
 import lib.atmosphere;
 
 RWTexture2D tex_skyViewLUT;
+RWTexture2D tex_skyViewTransmittanceLUT;
 
 [shader("compute")]
 [numthreads(16, 8)]
@@ -33,5 +34,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
         }
         
         tex_skyViewLUT[coord] = encodeColorRgbm16F(scattering);
+        tex_skyViewTransmittanceLUT[coord] = float4(transmittance, 1.0);
     }
 }
