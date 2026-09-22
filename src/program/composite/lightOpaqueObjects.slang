@@ -7,7 +7,7 @@ RWTexture2D tex_main;
 RWTexture2D tex_normal;
 RWTexture2D tex_skyScattering;
 RWTexture2D tex_skyTransmittance;
-RWTexture2D tex_skyAmbient;
+// RWTexture2D tex_skyAmbient;
 
 public static const float3 SUN_ILLUMINANCE = float3(128000.0);
 public static const float3 MOON_ILLUMINANCE = float3(0.25);
@@ -33,8 +33,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
 
         if (depth > 0.0) {
-
-            // float3 skyAmbient = tex_skyAmbient[coord].rgb;
 
             float3 shadow = getShadow(playerPos, normal.xyz);
 

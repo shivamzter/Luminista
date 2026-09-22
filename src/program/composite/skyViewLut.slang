@@ -3,7 +3,6 @@ import helper.util;
 import lib.atmosphere;
 
 RWTexture2D tex_skyViewLUT;
-RWTexture2D tex_skyViewTransmittanceLUT;
 
 [shader("compute")]
 [numthreads(16, 8)]
@@ -17,11 +16,22 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float2 lonLat = getLonLatFromUvNonLinear(texcoord);
 
         float3 rayDir = getDirFromLonLat(lonLat);
-        float3 rayOrigin = float3(0.0, ap.camera.position.y, 0.0);
+        float3 rayOrigin = playerToAtmosphere(float3(0.0, ap.camera.position.y, 0.0));
 
-        marchPrimaryRay ray = rayMarch(rayOrigin, rayDir); 
+        float3 scattering = float3(0.0);
+        float3 transmittance = float3(1.0);
+
+        float3 entryPointPosition;
+        float3 exitPointPosition;
+
+        int numSteps = 32;
+
+        if (getRayMarchEndpoints(rayOrigin, rayDir, entryPointPosition, exitPointPosition)) {
+            marchPrimaryRay ray = rayMarch(entryPointPosition, exitPointPosition, numSteps);
+            scattering = ray.scattering;
+            transmittance = ray.transmittance;
+        }
         
-        tex_skyViewLUT[coord] = encodeColorRgbm16F(ray.scattering);
-        tex_skyViewTransmittanceLUT[coord] = encodeColorRgbm16F(ray.transmittance);
+        tex_skyViewLUT[coord] = encodeColorRgbm16F(scattering);
     }
 }

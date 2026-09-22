@@ -276,20 +276,36 @@ public struct marchPrimaryRay {
     public float3 transmittance;
 }
 
-public marchPrimaryRay rayMarch(in float3 playerSpaceRayOrigin, in float3 playerSpaceRayDirection) {
+public bool getRayMarchEndpoints(float3 rayOrigin, float3 rayDir, out float3 entryPointPosition, out float3 exitPointPosition) {
+
+    float2 atmosLayerBottom = sphIntersect(rayOrigin, rayDir, CENTER_OF_EARTH, ATMOSHPHERE_BOTTOM_SPHERE_RADIUS_KM);
+    float2 atmosLayerTop = sphIntersect(rayOrigin, rayDir, CENTER_OF_EARTH, ATMOSPHERE_TOP_SPHERE_RADIUS_KM);
+
+    float closestDistance = 0.0;
+    float furthestDistance = 0.0;
+
+    // Check if need to raymarch
+    bool needToRayMarch = getDistances(atmosLayerTop, atmosLayerBottom, closestDistance, furthestDistance);
+
+    entryPointPosition = rayOrigin + rayDir * closestDistance;
+    exitPointPosition = rayOrigin + rayDir * furthestDistance;
+
+    return needToRayMarch;
+}
+
+public marchPrimaryRay rayMarch(in float3 entryPointPosition, in float3 exitPointPosition, in int numSteps) {
 
     marchPrimaryRay ray;
+    ray.scattering = float3(0.0);
+    ray.transmittance = float3(1.0);
 
-    float3 rayOrigin = playerToAtmosphere(playerSpaceRayOrigin);
-
-    float2 atmosLayerBottom = sphIntersect(rayOrigin, playerSpaceRayDirection, CENTER_OF_EARTH, ATMOSHPHERE_BOTTOM_SPHERE_RADIUS_KM);
-    float2 atmosLayerTop = sphIntersect(rayOrigin, playerSpaceRayDirection, CENTER_OF_EARTH, ATMOSPHERE_TOP_SPHERE_RADIUS_KM);
+    float3 rayDir = normalize(exitPointPosition - entryPointPosition);
 
     float3 sunLightDir = normalize(ap.celestial.sunPosition);
     float3 moonLightDir = normalize(ap.celestial.moonPosition);
 
-    float sunCosTheta = clamp(dot(-playerSpaceRayDirection, sunLightDir), 0.0, 1.0);
-    float moonCosTheta = clamp(dot(-playerSpaceRayDirection, moonLightDir), 0.0, 1.0);
+    float sunCosTheta = clamp(dot(-rayDir, sunLightDir), 0.0, 1.0);
+    float moonCosTheta = clamp(dot(-rayDir, moonLightDir), 0.0, 1.0);
 
     // prerequisites
     float sunLightRayleighPhase = rayleighPhase(sunCosTheta);
@@ -298,33 +314,14 @@ public marchPrimaryRay rayMarch(in float3 playerSpaceRayOrigin, in float3 player
     float moonLightRayleighPhase = rayleighPhase(moonCosTheta);
     float moonLightMiePhase = miePhaseCornetteShanks(moonCosTheta, 0.8);
 
-    ////
-    float closestDistance = 0.0;
-    float furthestDistance = 0.0;
-
-    // Check if need to raymarch
-    bool needToRayMarch = getDistances(atmosLayerTop, atmosLayerBottom, closestDistance, furthestDistance);
-
-    ray.scattering = float3(0.0);
-    ray.transmittance = float3(1.0);
-
-    if (!needToRayMarch) {
-        return ray;
-    }
-
-    // main function
-
-    float3 entryPointPosition = playerToAtmosphere(playerSpaceRayOrigin) + playerSpaceRayDirection * closestDistance;
-    float3 exitPointPosition = playerToAtmosphere(playerSpaceRayOrigin) + playerSpaceRayDirection * furthestDistance;
-
     // from entry to exit point in defined number of steps
-    float3 rayStep = (exitPointPosition - entryPointPosition) / float(NUM_STEPS);
+    float3 rayStep = (exitPointPosition - entryPointPosition) / float(numSteps);
 
     // Distance between each step;
     float rayStepLength = length(rayStep);
 
-    for (int i = 0; i < NUM_STEPS; i++) {
-        float3 rayPos = lerp(entryPointPosition, exitPointPosition, (float(i) + 0.5) / float(NUM_STEPS));
+    for (int i = 0; i < numSteps; i++) {
+        float3 rayPos = lerp(entryPointPosition, exitPointPosition, (float(i) + 0.5) / float(numSteps));
 
         float sampleAltitude = length(rayPos);
 
