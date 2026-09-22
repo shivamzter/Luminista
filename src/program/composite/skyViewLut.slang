@@ -4,7 +4,6 @@ import lib.atmosphere;
 
 RWTexture2D tex_skyViewLUT;
 RWTexture2D tex_skyViewTransmittanceLUT;
-Texture2D tex_skyTransmittanceLUT;
 
 [shader("compute")]
 [numthreads(16, 8)]
@@ -23,6 +22,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
         marchPrimaryRay ray = rayMarch(rayOrigin, rayDir); 
         
         tex_skyViewLUT[coord] = encodeColorRgbm16F(ray.scattering);
-        // tex_skyViewTransmittanceLUT[coord] = encodeColorRgbm16F(ray.transmittance);
+        tex_skyViewTransmittanceLUT[coord] = encodeColorRgbm16F(ray.transmittance);
     }
 }

@@ -16,8 +16,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float viewZenithCosAngle;
         UvToLutTransmittanceParams(viewHeight, viewZenithCosAngle, texcoord);
 
-        float3 rayOrigin = float3(0.0f, 0.0f, viewHeight);
-	    float3 rayDir = float3(0.0f, sqrt(1.0 - viewZenithCosAngle * viewZenithCosAngle), viewZenithCosAngle);
+        float3 rayOrigin = float3(0.0f, viewHeight, 0.0f);
+	    float3 rayDir = float3(sqrt(1.0 - viewZenithCosAngle * viewZenithCosAngle), viewZenithCosAngle, 0.0f);
 
         marchPrimaryRay ray = rayMarch(rayOrigin, rayDir);
         
