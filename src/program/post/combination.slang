@@ -25,6 +25,8 @@ float4 main(float2 pos: SV_Position) {
 
     color.rgb = color.rgb / (1.0 + color.rgb);
 
+    color.rgb = pow(color.rgb, float3(1.0 / 2.2));
+
     // return float4(skyScatteringLUT, 1.0);
     return color;
 }
