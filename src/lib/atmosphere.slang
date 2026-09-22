@@ -304,8 +304,8 @@ public marchPrimaryRay rayMarch(in float3 entryPointPosition, in float3 exitPoin
     float3 sunLightDir = normalize(ap.celestial.sunPosition);
     float3 moonLightDir = normalize(ap.celestial.moonPosition);
 
-    float sunCosTheta = clamp(dot(-rayDir, sunLightDir), 0.0, 1.0);
-    float moonCosTheta = clamp(dot(-rayDir, moonLightDir), 0.0, 1.0);
+    float sunCosTheta = saturate(dot(-rayDir, sunLightDir));
+    float moonCosTheta = saturate(dot(-rayDir, moonLightDir));
 
     // prerequisites
     float sunLightRayleighPhase = rayleighPhase(sunCosTheta);

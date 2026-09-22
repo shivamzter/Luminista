@@ -5,9 +5,6 @@ import helper.util;
 
 RWTexture2D tex_main;
 RWTexture2D tex_normal;
-RWTexture2D tex_skyScattering;
-RWTexture2D tex_skyTransmittance;
-// RWTexture2D tex_skyAmbient;
 
 public static const float3 SUN_ILLUMINANCE = float3(128000.0);
 public static const float3 MOON_ILLUMINANCE = float3(0.25);
@@ -22,17 +19,17 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float4 color = tex_main[coord];
         color.rgb = decodeColorRgbm16F(color);
+        
         float4 normal = tex_normal[coord];
         normal.xyz = octDecode(normal.xy);
 
         float depth = ap.opaqueDepth[coord];
 
-        // Space conversions
-        float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
-        float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
-        float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
-
         if (depth > 0.0) {
+            // Space conversions
+            float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
+            float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
+            float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
 
             float3 shadow = getShadow(playerPos, normal.xyz);
 
@@ -43,7 +40,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             color.rgb *= sunLighting + moonLighting + skyLighting;
 
+            tex_main[coord] = encodeColorRgbm16F(color.rgb);
         }
-        tex_main[coord] = encodeColorRgbm16F(color.rgb);
     }
 }

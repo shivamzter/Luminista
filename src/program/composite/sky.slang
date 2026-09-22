@@ -54,8 +54,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 skyTransmittance = transmittance;
 
             color.rgb = color.rgb * skyTransmittance + skyScattering;
-        }
 
-        tex_main[coord] = encodeColorRgbm16F(color.rgb);
+            tex_main[coord] = encodeColorRgbm16F(color.rgb);
+        }
     }
 }
