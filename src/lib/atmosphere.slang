@@ -5,6 +5,16 @@ import aperture;
 Jake Michie | Dev of Continuum - For basically everything with atmosphere;
 */
 
+public static const uint2 SKY_VIEW_LUT_SIZE = uint2(192, 108);
+
+public float2 fromUnitToSubUvs(float2 unit, float2 resolution) {
+    return (unit + 0.5 / resolution) * (resolution / (resolution + 1.0));
+}
+
+public float2 fromSubUvsToUnit(float2 unit, float2 resolution) {
+    return (unit - 0.5 / resolution) * (resolution / (resolution - 1.0));
+}
+
 static const float3 ATMOSPHERE_RAYLEIGH_SCATTERING_COEFFICIENT = float3(0.005802, 0.013558, 0.033100);
 static const float3 ATMOSPHERE_RAYLEIGH_ABSORPTION_COEFFICIENT = float3(0.0);
 static const float3 ATMOSPHERE_RAYLEIGH_EXTINCTION_COEFFICIENT = ATMOSPHERE_RAYLEIGH_SCATTERING_COEFFICIENT + ATMOSPHERE_RAYLEIGH_ABSORPTION_COEFFICIENT;
@@ -39,6 +49,13 @@ static const float ATMOSPHERE_TOP_SPHERE_RADIUS_KM = ATMOSHPHERE_BOTTOM_SPHERE_R
 
 static const float MOON_ILLUMINANCE = 0.25;
 static const float SUN_ILLUMINANCE = 128000;
+
+float fromUnitToSubUvs(float u, float resolution) {
+    return (u + 0.5f / resolution) * (resolution / (resolution + 1.0f));
+}
+float fromSubUvsToUnit(float u, float resolution) {
+    return (u - 0.5f / resolution) * (resolution / (resolution - 1.0f));
+}
 
 public float3 playerToAtmosphere(float3 playerPos) {
     return fma(playerPos, rcp(1000.0), CAMERA_OFFSET_KM);
@@ -116,10 +133,9 @@ bool getDistancesForSecondRay(in float2 atmosLayerTop, in float2 atmosLayerBotto
 
     // ray existed the top sphere but didn't enter, its origin is inside of the atmosphere
     if (atmosLayerTop.x < 0.0) {
+        furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
 
-    furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
-
-    return true;
+        return true;
     }
 
     return false;
@@ -182,20 +198,18 @@ bool getDistances(in float2 atmosLayerTop, in float2 atmosLayerBottom, out float
 
     // ray existed the top sphere but didn't enter, its origin is inside of the atmosphere
     else if (atmosLayerTop.x < 0.0) {
+        closestDistance = 0.0;
+        furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
 
-    closestDistance = 0.0;
-    furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
-
-    return true;
+        return true;
     }
 
     // ray entered and existed the top, it's origin is outside of the atmosphere
     else {
-
-    closestDistance = atmosLayerTop.x;
-    furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
+        closestDistance = atmosLayerTop.x;
+        furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
     
-    return false;
+        return false;
     }
 
     return true;
@@ -250,13 +264,14 @@ public marchPrimaryRay rayMarch(in float3 playerSpaceRayOrigin, in float3 player
     // Check if need to raymarch
     bool needToRayMarch = getDistances(atmosLayerTop, atmosLayerBottom, closestDistance, furthestDistance);
 
+    ray.scattering = float3(0.0);
+    ray.transmittance = float3(1.0);
+
     if (!needToRayMarch) {
         return ray;
     }
 
     // main function
-    ray.scattering = float3(0.0);
-    ray.transmittance = float3(1.0);
 
     float3 entryPointPosition = playerToAtmosphere(playerSpaceRayOrigin) + playerSpaceRayDirection * closestDistance;
     float3 exitPointPosition = playerToAtmosphere(playerSpaceRayOrigin) + playerSpaceRayDirection * furthestDistance;

@@ -1,4 +1,6 @@
 public static const float PI = 3.14159265359;
+static const float HALF_PI = PI * 0.5;
+static const float RCP_HALF_PI = 1.0 / HALF_PI;
 
 // https://knarkowicz.wordpress.com/2014/04/16/octahedron-normal-vector-encoding/
 public float2 octWrap(float2 v)
@@ -42,4 +44,47 @@ public float3 projectAndDivide(float4x4 invProj, float3 pos) {
 
 public float pow2(float x) {
     return (x * x);
+}
+
+public float2 getLonLatFromUv(float2 uv) {
+    uv.y = uv.y * 2.0 - 1.0;
+    float s = uv.y >= 0.0 ? 1.0 : -1.0;
+
+    float lat = abs(uv.y) * s * HALF_PI;
+
+    return float2(uv.x, lat);
+}
+
+public float2 getUvFromLonLat(float2 lonLat) {
+    float s = lonLat.y >= 0.0 ? 1.0 : -1.0;
+    float v = abs(lonLat.y) * RCP_HALF_PI * s * 0.5 + 0.5;
+
+    return float2(lonLat.x, v);
+}
+
+public float2 getLonLatFromUvNonLinear(float2 uv) {
+    uv.y = uv.y * 2.0 - 1.0;
+    float s = uv.y >= 0.0 ? 1.0 : -1.0;
+
+    float lat = pow2(abs(uv.y)) * s * HALF_PI;
+
+    return float2(uv.x, lat);
+}
+
+public float2 getUvFromLonLatNonLinear(float2 lonLat) {
+    float s = lonLat.y >= 0.0 ? 1.0 : -1.0;
+    float v = sqrt(abs(lonLat.y) * RCP_HALF_PI) * s * 0.5 + 0.5;
+
+    return float2(lonLat.x, v);
+}
+
+public float2 getLonLatFromDir(float3 dir) {
+    return float2(atan2(dir.x, -dir.z) / (PI * 2.0) + 0.5, asin(clamp(dir.y, -1.0, 1.0)));
+}
+
+public float3 getDirFromLonLat(float2 lonLat) {
+    float angle = (lonLat.x - 0.5) * PI * 2.0;
+    float cosLat = cos(lonLat.y);
+
+    return float3(sin(angle) * cosLat, sin(lonLat.y), -cos(angle) * cosLat);
 }

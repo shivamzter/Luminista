@@ -1,12 +1,12 @@
 import aperture;
-// import lib.shadow;
-import lib.rt_shadows;
 import helper.util;
 import lib.atmosphere;
 
 RWTexture2D tex_skyScattering;
 RWTexture2D tex_skyTransmittance;
-RWTexture2D tex_skyAmbient;
+
+Texture2D tex_skyViewLUT;
+Texture2D tex_skyViewTransmittanceLUT;
 
 [shader("compute")]
 [numthreads(16, 16)]
@@ -18,22 +18,26 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float depth = ap.opaqueDepth[coord];
 
-        // Space conversions
-        float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
-        float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
-        float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
-
-        float3 playerSpaceRayOrigin = float3(0.0, ap.camera.position.y, 0.0);
-        float3 playerSpaceRayDirection = normalize(playerPos);
-
         if (depth == 0.0) {
-            marchPrimaryRay ray = rayMarch(playerSpaceRayOrigin, playerSpaceRayDirection);
+            // Space conversions
+            float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
+            float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
+            float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
 
-            tex_skyScattering[coord] = float4(ray.scattering, 1.0);
-            tex_skyTransmittance[coord] = float4(ray.transmittance, 1.0);
-        } else {
-            marchPrimaryRay ray = rayMarch(playerPos + playerSpaceRayOrigin, float3(0.0, 1.0, 0.0));
-            tex_skyAmbient[coord] = float4(ray.scattering, 1.0);
+            // float3 playerSpaceRayOrigin = float3(0.0, ap.camera.position.y, 0.0);
+            float3 playerSpaceRayDirection = normalize(playerPos);
+
+            float2 uv = getUvFromLonLatNonLinear(getLonLatFromDir(playerSpaceRayDirection));
+            uv = fromUnitToSubUvs(uv, float2(SKY_VIEW_LUT_SIZE));
+
+            float4 sampleSkyScatteringLUT = tex_skyViewLUT.sampleLinear(uv);
+            float4 sampleSkyTransmittanceLUT = tex_skyViewTransmittanceLUT.sampleLinear(uv);
+
+            float3 skyScattering = decodeColorRgbm16F(sampleSkyScatteringLUT);
+            float3 skyTransmittance = decodeColorRgbm16F(sampleSkyTransmittanceLUT);
+
+            tex_skyScattering[coord] = encodeColorRgbm16F(skyScattering);
+            tex_skyTransmittance[coord] = encodeColorRgbm16F(skyTransmittance);
         }
     }
 }

@@ -23,22 +23,15 @@ public class Luminista implements ShaderPack {
         var tex_main = pipeline.texture2D("tex_main", TextureFormat.RGBA16_SFLOAT).renderSize().create();
         var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGB10A2_UNORM).renderSize().create();
 
+        pipeline.texture2D("tex_skyViewLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
+        pipeline.texture2D("tex_skyViewTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
+        // pipeline.texture2D("tex_mulScatterLUT", TextureFormat.RGBA16_SFLOAT).size(32, 32).create();
+
         pipeline.texture2D("tex_skyScattering", TextureFormat.RGBA16_SFLOAT).size(screen.renderWidth(), screen.renderHeight()).create();
         pipeline.texture2D("tex_skyTransmittance", TextureFormat.RGBA16_SFLOAT).size(screen.renderWidth(), screen.renderHeight()).create();
-        pipeline.texture2D("tex_skyAmbient", TextureFormat.RGBA16_SFLOAT).size(1, 1).create();
         
         // Pipeline stages
         pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);
-
-        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("sky", "program/composite/sky", "main").dispatch2D(sizeX_16, sizeY_16);
-        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/composite/lightOpaqueObjects", "main").dispatch2D(sizeX_16, sizeY_16);
-        pipeline.stage(ProgramStage.POST_RENDER).compute("histogram", "program/composite/histogram", "applyHistogram").dispatch3D(sizeX_16, sizeY_16, 1); //Global histogram
-        pipeline.stage(ProgramStage.POST_RENDER).compute("histogramAverage", "program/composite/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
-
-        // Object passes
-        pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal);
-        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main).writes("normal", tex_normal);
-        
 
         // Shadow passes
         if (pipeline.settings().getBoolValue("SHADOW_ENABLED")) {
@@ -57,6 +50,18 @@ public class Luminista implements ShaderPack {
             }
         }
 
+        // Object passes
+        pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal);
+        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main).writes("normal", tex_normal);
+
+        // Sky
+        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyViewLut", "program/composite/skyViewLut", "main").dispatch2D(Math.ceilDiv(192, 16), Math.ceilDiv(108, 8));
+        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("sky", "program/composite/sky", "main").dispatch2D(sizeX_16, sizeY_16);
+        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/composite/lightOpaqueObjects", "main").dispatch2D(sizeX_16, sizeY_16);
+        pipeline.stage(ProgramStage.POST_RENDER).compute("histogram", "program/composite/histogram", "applyHistogram").dispatch3D(sizeX_16, sizeY_16, 1); //Global histogram
+        pipeline.stage(ProgramStage.POST_RENDER).compute("histogramAverage", "program/composite/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
+
+        
         // Combination pass
         pipeline.combinationPass("program/post/combination");
     }
