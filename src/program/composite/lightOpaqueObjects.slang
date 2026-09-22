@@ -43,13 +43,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             color.rgb *= sunLighting + moonLighting + skyLighting;
 
-        } else {
-            float3 skyScattering = decodeColorRgbm16F(tex_skyScattering[coord]);
-            float3 skyTransmittance = decodeColorRgbm16F(tex_skyTransmittance[coord]);
-
-            color.rgb = color.rgb * skyTransmittance + skyScattering;
         }
-
         tex_main[coord] = encodeColorRgbm16F(color.rgb);
     }
 }

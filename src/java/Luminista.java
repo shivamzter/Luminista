@@ -26,8 +26,7 @@ public class Luminista implements ShaderPack {
         var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGB10A2_UNORM).renderSize().create();
 
         pipeline.texture2D("tex_skyTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(256, 64).create();
-        pipeline.texture2D("tex_skyViewLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
-        pipeline.texture2D("tex_skyViewTransmittance", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
+        pipeline.texture2D("tex_skyViewScatteringLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
         // pipeline.texture2D("tex_mulScatterLUT", TextureFormat.RGBA16_SFLOAT).size(32, 32).create();
         
         // Pipeline stages

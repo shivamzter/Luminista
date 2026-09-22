@@ -2,11 +2,10 @@ import aperture;
 import helper.util;
 import lib.atmosphere;
 
-Texture2D tex_skyViewLUT;
+Texture2D tex_skyViewScatteringLUT;
 Texture2D tex_skyTransmittanceLUT;
 
-RWTexture2D tex_skyScattering;
-RWTexture2D tex_skyTransmittance;
+RWTexture2D tex_main;
 
 public float3 computeTransmittanceToCelestialLight(
     float3 atmosphereSpacePos,
@@ -31,6 +30,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float2 texcoord = (coord + 0.5) / ap.game.renderSize;
 
+        float4 color = tex_main[coord];
+        color.rgb = decodeColorRgbm16F(color);
+
         float depth = ap.opaqueDepth[coord];
 
         if (depth == 0.0) {
@@ -48,11 +50,12 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             float3 transmittance = computeTransmittanceToCelestialLight(cameraAtmosPos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
 
-            float3 skyScattering = decodeColorRgbm16F(tex_skyViewLUT.sampleLinear(skyViewUV));
+            float3 skyScattering = decodeColorRgbm16F(tex_skyViewScatteringLUT.sampleLinear(skyViewUV));
             float3 skyTransmittance = transmittance;
 
-            tex_skyScattering[coord] = encodeColorRgbm16F(skyScattering);
-            tex_skyTransmittance[coord] = float4(skyTransmittance, 1.0);
+            color.rgb = color.rgb * skyTransmittance + skyScattering;
         }
+
+        tex_main[coord] = encodeColorRgbm16F(color.rgb);
     }
 }

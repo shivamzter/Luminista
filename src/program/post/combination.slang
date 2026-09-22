@@ -5,8 +5,8 @@ import helper.util;
 Texture2D tex_main;
 StructuredBuffer<float2> exposureBuffer;
 
-Texture2D tex_skyViewLUT;
 Texture2D tex_skyTransmittanceLUT;
+Texture2D tex_skyViewScatteringLUT;
 
 [[shader("pixel")]]
 float4 main(float2 pos: SV_Position) {
@@ -18,11 +18,8 @@ float4 main(float2 pos: SV_Position) {
 
     color.rgb = decodeColorRgbm16F(color);
 
-    float4 sampleSkyScatteringLUT = tex_skyViewLUT.sampleLinear(uv);
-    float4 sampleTransmittanceLUT = tex_skyTransmittanceLUT.sampleLinear(uv);
-
-    float3 skyScatteringLUT = decodeColorRgbm16F(sampleSkyScatteringLUT);
-    float3 transmittanceLUT = sampleTransmittanceLUT.rgb;
+    float3 skyTransmittanceLUT = tex_skyTransmittanceLUT.sampleLinear(uv).rgb;
+    float3 skyScatteringLUT = decodeColorRgbm16F(tex_skyViewScatteringLUT.sampleLinear(uv));
 
     color.rgb *= exposure;
 
