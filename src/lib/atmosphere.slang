@@ -142,17 +142,18 @@ bool getDistancesForSecondRay(in float2 atmosLayerTop, in float2 atmosLayerBotto
 }
 
 
-public float3 rayMarchSecondary(in float3 playerSpaceRayOrigin) {
+public float3 rayMarchSecondary(in float3 playerSpaceRayOrigin, in float3 lightDir) {
     
     float3 transmittance = float3(1.0);
 
     float3 rayOrigin = playerSpaceRayOrigin;
-    
-    // float3 lightPos = mul(float3x3(ap.camera.viewInv), ap.celestial.sunPosition);
-    float3 lightDir = normalize(ap.celestial.position);
 
     float2 atmosLayerBottom = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSHPHERE_BOTTOM_SPHERE_RADIUS_KM);
     float2 atmosLayerTop = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSPHERE_TOP_SPHERE_RADIUS_KM);
+
+    // if (atmosLayerBottom.x >= 0.0) {
+    // return float3(0.0);
+    // }
 
     ////
     float closestDistance = 0.0;
@@ -223,7 +224,7 @@ public float3 computeIntegratedSingleScatteringForCelestialLight(MediumSample me
     float2 earthShadowIntersection = sphIntersect(rayPos + localUpVec, lightDir, CENTER_OF_EARTH, EARTH_RADIUS_KM);
     float earthShadow = earthShadowIntersection.y < 0.0 ? 1.0 : 0.0;
         
-    float3 sampleToLightTransmittance = rayMarchSecondary(rayPos);
+    float3 sampleToLightTransmittance = rayMarchSecondary(rayPos, lightDir);
 
     float3 singleScattering = lightIlluminance * phaseTimesMediumScattering * sampleToLightTransmittance * earthShadow;
 

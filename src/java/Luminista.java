@@ -1,3 +1,5 @@
+import org.joml.Vector4f;
+
 import dev.irisshaders.aperture.api.*;
 import dev.irisshaders.aperture.api.objects.*;
 import dev.irisshaders.aperture.api.pipeline.*;
@@ -51,9 +53,13 @@ public class Luminista implements ShaderPack {
         }
 
         // Object passes
+        pipeline.object(ProgramUsage.SKYBOX, "program/object/skybox", "SkyShader");
+        pipeline.object(ProgramUsage.SKY_TEXTURES, "program/object/skybox", "SkyShader");
         pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal);
         pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main).writes("normal", tex_normal);
 
+
+        pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_main);
         // Sky
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyViewLut", "program/composite/skyViewLut", "main").dispatch2D(Math.ceilDiv(192, 16), Math.ceilDiv(108, 8));
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("sky", "program/composite/sky", "main").dispatch2D(sizeX_16, sizeY_16);
