@@ -1,0 +1,15 @@
+screen.indirectLighting = Indirect Lighting
+
+screen.vanillaAO = Vanilla AO
+option.VANILLA_AO = Vanilla Ambient Occlusion
+option.VANILLA_AO_INTENSITY = Intensity
+
+screen.postProcess = Post Processing
+
+screen.exposure = Exposure
+option.AUTO_EXPOSURE = Auto Exposure
+option.MANUAL_EXPOSURE = Manual Exposure Intensity
+option.MANUAL_EXPOSURE.comment = Only works if Auto Exposure is Off
+
+screen.toneMapping = Tone Mapping
+option.TONE_MAPPING = Tone Mapping Operator

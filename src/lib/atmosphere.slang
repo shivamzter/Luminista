@@ -66,7 +66,13 @@ public float3 atmoshphereToPlayer(float3 atmoshpherePos) {
     return fma(atmoshpherePos, 1000.0, -CAMERA_OFFSET_KM);
 }
 
-float2 sphIntersect( in float3 ro, in float3 rd, in float3 ce, float ra )
+public float earthShadow(float3 rayPos, float3 lightDir) {
+    float3 localUpVec = normalize(rayPos) * 0.01;
+    float2 earthShadowIntersection = sphIntersect(rayPos + localUpVec, lightDir, CENTER_OF_EARTH, EARTH_RADIUS_KM + CAMERA_ALTITUDE_KM);
+    return earthShadowIntersection.y < 0.0 ? 1.0 : 0.0;
+}
+
+public float2 sphIntersect( in float3 ro, in float3 rd, in float3 ce, float ra )
 {
     float3 oc = ro - ce;
     float b = dot( oc, rd );

@@ -24,6 +24,7 @@ public class Luminista implements ShaderPack {
     
         var tex_main = pipeline.texture2D("tex_main", TextureFormat.RGBA16_SFLOAT).renderSize().create();
         var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGB10A2_UNORM).renderSize().create();
+        var tex_lightMap = pipeline.texture2D("tex_lightMap", TextureFormat.RGBA16_SFLOAT).renderSize().create();
 
         pipeline.texture2D("tex_skyTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(256, 64).create();
         pipeline.texture2D("tex_skyViewScatteringLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
@@ -33,7 +34,7 @@ public class Luminista implements ShaderPack {
         pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);
 
         // Shadow passes
-        if (pipeline.settings().getBoolValue("SHADOW_ENABLED")) {
+        // if (pipeline.settings().getBoolValue("SHADOW_ENABLED")) {
 
             final var translucentShadowUsages = new ProgramUsage[] {
 			ProgramUsage.SHADOW_TERRAIN_TRANSLUCENT,
@@ -47,13 +48,13 @@ public class Luminista implements ShaderPack {
             for (var usage : translucentShadowUsages) {
             pipeline.object(usage, "program/object/shadow_translucent", "ShadowTranslucentShader").writes("color", tex_shadowColor, new BlendMode(BlendFactors.SRC_ALPHA, BlendFactors.ONE_MINUS_SRC_ALPHA, BlendFactors.ONE, BlendFactors.ONE_MINUS_SRC_ALPHA));
             }
-        }
+        // }
 
         // Object passes
         pipeline.object(ProgramUsage.SKYBOX, "program/object/skybox", "SkyShader");
         pipeline.object(ProgramUsage.SKY_TEXTURES, "program/object/skybox", "SkyShader");
-        pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal);
-        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main).writes("normal", tex_normal);
+        pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal).writes("lightMap", tex_lightMap);
+        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main).writes("normal", tex_normal).writes("lightMap", tex_lightMap);
 
 
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_main);
@@ -73,9 +74,9 @@ public class Luminista implements ShaderPack {
     @Override
     public void configureRenderer(RendererConfig rendererConfig) {
         rendererConfig.setSunPathRotation(23.47f);
-        rendererConfig.setShadowCascades(rendererConfig.getSettings().getIntValue("SHADOW_CASCADE_COUNT"));
-        rendererConfig.setShadowDistance(rendererConfig.getSettings().getIntValue("SHADOW_DISTANCE"));
-        rendererConfig.setShadowResolution(rendererConfig.getSettings().getIntValue("SHADOW_RESOLUTION"));
+        // rendererConfig.setShadowCascades(rendererConfig.getSettings().getIntValue("SHADOW_CASCADE_COUNT"));
+        // rendererConfig.setShadowDistance(rendererConfig.getSettings().getIntValue("SHADOW_DISTANCE"));
+        // rendererConfig.setShadowResolution(rendererConfig.getSettings().getIntValue("SHADOW_RESOLUTION"));
         rendererConfig.enableRT();
     }
 }

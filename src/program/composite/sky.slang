@@ -64,10 +64,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float2 skyViewUV = getUvFromLonLatNonLinear(getLonLatFromDir(playerSpaceRayDirection));
             skyViewUV = fromUnitToSubUvs(skyViewUV, float2(SKY_VIEW_LUT_SIZE));
 
-            float3 transmittance = computeTransmittanceToCelestialLight(cameraAtmosPos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
-
             float3 skyScattering = decodeColorRgbm16F(tex_skyViewScatteringLUT.sampleLinear(skyViewUV));
-            float3 skyTransmittance = transmittance;
+            float3 skyTransmittance = computeTransmittanceToCelestialLight(cameraAtmosPos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
 
             float3 sunViewDot = dot(normalize(playerPos), normalize(ap.celestial.sunPosition));
             float3 moonViewDot = dot(normalize(playerPos), normalize(ap.celestial.moonPosition));
