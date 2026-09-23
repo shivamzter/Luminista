@@ -17,18 +17,17 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float2 texcoord = (coord + 0.5) / ap.game.renderSize;
 
+        float depth = ap.opaqueDepth[coord];
+
         float4 color = tex_main[coord];
         color.rgb = decodeColorRgbm16F(color);
-
-        float depth = ap.opaqueDepth[coord];
+        color.rgb = pow(color.rgb, float3(2.2));
 
         if (depth == 0.0) {
             // Space conversions
             float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
             float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
             float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
-
-            float3 cameraAtmosPos = playerToAtmosphere(float3(0.0, ap.camera.position.y, 0.0));
 
             float3 playerSpaceRayDirection = normalize(playerPos);
 
@@ -37,7 +36,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             float3 skyScattering = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0));
             float3 skyTransmittance = tex_skyViewTransmittanceLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0).rgb;
-            // float3 skyTransmittance = computeTransmittanceToCelestialLight(cameraAtmosPos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
 
             float sunViewDot = dot(normalize(playerPos), normalize(ap.celestial.sunPosition));
             float moonViewDot = dot(normalize(playerPos), normalize(ap.celestial.moonPosition));

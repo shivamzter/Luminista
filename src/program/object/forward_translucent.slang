@@ -57,8 +57,6 @@ struct ForwardTranslucentShader : Shader<VertexOutput, FragmentOutput> {
         // This is equivalent to `if (objectIsCutout && alpha < 0.1) discard;`. It will determine if the object needs it.
         ap.discardCutout(color);
 
-        // color.rgb = pow(color.rgb, float3(2.2));
-
         // The following 2 lines were copied from Amaryllis shader
         // const float lmcoordLowerBound = 1.0 / 32.0;
         // const float lmcoordUpperBound = 31.0 / 32.0;

@@ -59,7 +59,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
                 ambientOcclusion *= lerp(1.0, vanillaAO, userSettings.VANILLA_AO_INTENSITY);
             }
 
-            float3 skyLighting = decodeColorRgbm16F(tex_skyViewScatteringLUT.sampleLinear(upUV));
+            float3 skyLighting = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, upUV, 0));
 
             float3 directLighting = shadow * (sunLighting + moonLighting);
             float3 indirectLighting = ((vanillaBlockLight * 182) + skyLighting) * float3(ambientOcclusion);
