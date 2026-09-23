@@ -28,6 +28,7 @@ public class Luminista implements ShaderPack {
 
         pipeline.texture2D("tex_skyTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(256, 64).create();
         pipeline.texture2D("tex_skyViewScatteringLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
+        pipeline.texture2D("tex_skyViewTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
         // pipeline.texture2D("tex_mulScatterLUT", TextureFormat.RGBA16_SFLOAT).size(32, 32).create();
         
         // Pipeline stages
@@ -54,7 +55,7 @@ public class Luminista implements ShaderPack {
         pipeline.object(ProgramUsage.SKYBOX, "program/object/skybox", "SkyShader");
         pipeline.object(ProgramUsage.SKY_TEXTURES, "program/object/skybox", "SkyShader");
         pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal).writes("lightMap", tex_lightMap);
-        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main).writes("normal", tex_normal).writes("lightMap", tex_lightMap);
+        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main);
 
 
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_main);

@@ -1,7 +1,9 @@
 import aperture;
 import helper.util;
 import lib.atmosphere;
+
 RWTexture2D tex_skyViewScatteringLUT;
+RWTexture2D tex_skyViewTransmittanceLUT;
 
 [shader("compute")]
 [numthreads(16, 8)]
@@ -18,6 +20,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float3 rayOrigin = playerToAtmosphere(float3(0.0, ap.camera.position.y, 0.0));
 
         float3 scattering = float3(0.0);
+        float3 transmittance = float3(1.0);
 
         float3 entryPointPosition;
         float3 exitPointPosition;
@@ -25,8 +28,10 @@ void main(uint2 coord: SV_DispatchThreadID) {
         if (getRayMarchEndpoints(rayOrigin, rayDir, entryPointPosition, exitPointPosition)) {
             marchPrimaryRay ray = rayMarch(entryPointPosition, exitPointPosition, SKY_VIEW_LUT_STEPS);
             scattering = ray.scattering;
+            transmittance = ray.transmittance;
         }
         
         tex_skyViewScatteringLUT[coord] = encodeColorRgbm16F(scattering);
+        tex_skyViewTransmittanceLUT[coord] = float4(transmittance, 1.0);
     }
 }

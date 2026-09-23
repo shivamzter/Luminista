@@ -3,6 +3,8 @@ import helper.util;
 import lib.atmosphere;
 
 Texture2D tex_skyViewScatteringLUT;
+Texture2D tex_skyViewTransmittanceLUT;
+
 Texture2D tex_skyTransmittanceLUT;
 
 RWTexture2D tex_main;
@@ -34,7 +36,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
             skyViewUV = fromUnitToSubUvs(skyViewUV, float2(SKY_VIEW_LUT_SIZE));
 
             float3 skyScattering = decodeColorRgbm16F(tex_skyViewScatteringLUT.sampleLinear(skyViewUV));
-            float3 skyTransmittance = computeTransmittanceToCelestialLight(cameraAtmosPos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
+            float3 skyTransmittance = tex_skyViewTransmittanceLUT.sampleLinear(skyViewUV).rgb;
+            // float3 skyTransmittance = computeTransmittanceToCelestialLight(cameraAtmosPos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
 
             float sunViewDot = dot(normalize(playerPos), normalize(ap.celestial.sunPosition));
             float moonViewDot = dot(normalize(playerPos), normalize(ap.celestial.moonPosition));
