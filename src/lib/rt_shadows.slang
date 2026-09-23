@@ -10,7 +10,7 @@ public static float3 getShadow(float3 localPos, float3 normal) {
 
     var query = HWRT.startQuery(
         localPos + 0.002 * normal,
-        normalize(ap.celestial.sunPosition),
+        normalize(ap.celestial.position),
         0.0, max(ap.world.renderDistance, 1.0),
         HWRT.HitType.TERRAIN | HWRT.HitType.ENTITY,
         HWRT.RTFlags.ACCEPT_FIRST_HIT_AND_END_SEARCH

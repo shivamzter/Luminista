@@ -27,8 +27,8 @@ public class Luminista implements ShaderPack {
         var tex_lightMap = pipeline.texture2D("tex_lightMap", TextureFormat.RGBA8_UNORM).renderSize().create();
 
         pipeline.texture2D("tex_skyTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(256, 64).create();
-        pipeline.texture2D("tex_skyViewScatteringLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
-        pipeline.texture2D("tex_skyViewTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
+        pipeline.texture2D("tex_skyViewScatteringLUT", TextureFormat.RGBA16_SFLOAT).size(256, 128).create();
+        pipeline.texture2D("tex_skyViewTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(256, 128).create();
         // pipeline.texture2D("tex_mulScatterLUT", TextureFormat.RGBA16_SFLOAT).size(32, 32).create();
         
         // Pipeline stages
@@ -61,7 +61,7 @@ public class Luminista implements ShaderPack {
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_main);
         // Sky
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyTransmittanceLut", "program/composite/skyTransmittanceLut", "main").dispatch2D(Math.ceilDiv(256, 16), Math.ceilDiv(64, 8));
-        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyViewLut", "program/composite/skyViewLut", "main").dispatch2D(Math.ceilDiv(192, 16), Math.ceilDiv(108, 8));
+        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyViewLut", "program/composite/skyViewLut", "main").dispatch2D(Math.ceilDiv(256, 16), Math.ceilDiv(128, 8));
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("sky", "program/composite/sky", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/composite/lightOpaqueObjects", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.POST_RENDER).compute("histogram", "program/composite/histogram", "applyHistogram").dispatch3D(sizeX_16, sizeY_16, 1); //Global histogram

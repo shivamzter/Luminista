@@ -8,7 +8,7 @@ Texture2D tex_skyTransmittanceLUT;
 Jake Michie | Dev of Continuum - For basically everything with atmosphere;
 */
 
-public static const uint2 SKY_VIEW_LUT_SIZE = uint2(192, 108);
+public static const uint2 SKY_VIEW_LUT_SIZE = uint2(256, 128);
 public static const uint2 SKY_TRANSMITTANCE_LUT_SIZE = uint2(256, 64);
 
 public float2 fromUnitToSubUvs(float2 unit, float2 resolution) {
@@ -49,7 +49,7 @@ static const float3 CENTER_OF_EARTH = float3(0.0, 0.0, 0.0);
 
 public static const float EARTH_RADIUS_KM = 6400.0;
 public static const float CAMERA_ALTITUDE_KM = -100.0 / 1000.0;
-public static const float3 CAMERA_OFFSET_KM = float3(0.0, EARTH_RADIUS_KM + CAMERA_ALTITUDE_KM, 0.0);
+public static const float3 CAMERA_OFFSET_KM = float3(0.0, EARTH_RADIUS_KM - CAMERA_ALTITUDE_KM, 0.0);
 
 static const float ATMOSPHERE_THICKNESS_KM = 100.0;
 static const float ATMOSHPHERE_BOTTOM_SPHERE_RADIUS_KM = EARTH_RADIUS_KM;
@@ -81,7 +81,7 @@ public float3 atmoshphereToPlayer(float3 atmoshpherePos) {
 
 public float earthShadow(float3 rayPos, float3 lightDir) {
     float3 localUpVec = normalize(rayPos) * 0.01;
-    float2 earthShadowIntersection = sphIntersect(rayPos + localUpVec, lightDir, CENTER_OF_EARTH, EARTH_RADIUS_KM + CAMERA_ALTITUDE_KM);
+    float2 earthShadowIntersection = sphIntersect(rayPos + localUpVec, lightDir, CENTER_OF_EARTH, EARTH_RADIUS_KM);
     return earthShadowIntersection.y < 0.0 ? 1.0 : 0.0;
 }
 

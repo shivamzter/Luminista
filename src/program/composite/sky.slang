@@ -2,10 +2,10 @@ import aperture;
 import helper.util;
 import lib.atmosphere;
 
-Texture2D tex_skyViewScatteringLUT;
 Texture2D tex_skyViewTransmittanceLUT;
+Texture2D tex_skyViewScatteringLUT;
 
-Texture2D tex_skyTransmittanceLUT;
+// Texture2D tex_skyTransmittanceLUT;
 
 RWTexture2D tex_main;
 
@@ -35,8 +35,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float2 skyViewUV = getUvFromLonLatNonLinear(getLonLatFromDir(playerSpaceRayDirection));
             skyViewUV = fromUnitToSubUvs(skyViewUV, float2(SKY_VIEW_LUT_SIZE));
 
-            float3 skyScattering = decodeColorRgbm16F(tex_skyViewScatteringLUT.sampleLinear(skyViewUV));
-            float3 skyTransmittance = tex_skyViewTransmittanceLUT.sampleLinear(skyViewUV).rgb;
+            float3 skyScattering = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0));
+            float3 skyTransmittance = tex_skyViewTransmittanceLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0).rgb;
             // float3 skyTransmittance = computeTransmittanceToCelestialLight(cameraAtmosPos, playerSpaceRayDirection, tex_skyTransmittanceLUT);
 
             float sunViewDot = dot(normalize(playerPos), normalize(ap.celestial.sunPosition));

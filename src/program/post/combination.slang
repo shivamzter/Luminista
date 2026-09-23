@@ -7,6 +7,8 @@ Texture2D tex_main;
 StructuredBuffer<float2> exposureBuffer;
 
 Texture2D tex_skyTransmittanceLUT;
+
+Texture2D tex_skyViewTransmittanceLUT;
 Texture2D tex_skyViewScatteringLUT;
 
 // float3 reinhardLuminanceToneMapping(float3 color) {
@@ -30,8 +32,10 @@ float4 main(float2 pos: SV_Position) {
 
     color.rgb = decodeColorRgbm16F(color);
 
-    float3 skyTransmittanceLUT = tex_skyTransmittanceLUT.sampleLinear(uv).rgb;
-    float3 skyScatteringLUT = decodeColorRgbm16F(tex_skyViewScatteringLUT.sampleLinear(uv));
+    float3 skyTransmittanceLUT = tex_skyTransmittanceLUT.SampleLevel(apt_linearSampler, uv, 0).rgb;
+
+    float3 skyViewTransmittanceLUT = tex_skyViewTransmittanceLUT.SampleLevel(apt_linearSampler, uv, 0).rgb;
+    float3 skyViewScatteringLUT = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, uv, 0));
 
     if (!userSettings.AUTO_EXPOSURE) {
         color.rgb *= userSettings.MANUAL_EXPOSURE;
@@ -53,6 +57,6 @@ float4 main(float2 pos: SV_Position) {
 
     color.rgb = pow(color.rgb, float3(1.0 / 2.2));
 
-    // return float4(skyScatteringLUT, 1.0);
+    // return float4(skyViewScatteringLUT / 100, 1.0);
     return color;
 }
