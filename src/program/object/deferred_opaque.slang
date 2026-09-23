@@ -39,8 +39,13 @@ struct DeferredOpaqueShader : Shader<VertexOutput, FragmentOutput> {
             color *= texture.sampleTexture(vIn.uv); // Some objects simply don't have a texture, such as clouds
         }
 
+        float vanillaAO = vIn.light.b;
+        
+
         // This is equivalent to `if (objectIsCutout && alpha < 0.1) discard;`. It will determine if the object needs it.
         ap.discardCutout(color);
+
+        color.rgb *= vanillaAO;
 
         ////////// OUTPUTS //////////
         output.color = encodeColorRgbm16F(color.rgb);
