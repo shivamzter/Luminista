@@ -22,10 +22,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float3 entryPointPosition;
         float3 exitPointPosition;
 
-        int numSteps = 30;
-
         if (getRayMarchEndpoints(rayOrigin, rayDir, entryPointPosition, exitPointPosition)) {
-            marchPrimaryRay ray = rayMarch(entryPointPosition, exitPointPosition, numSteps);
+            marchPrimaryRay ray = rayMarch(entryPointPosition, exitPointPosition, SKY_VIEW_LUT_STEPS);
             scattering = ray.scattering;
         }
         

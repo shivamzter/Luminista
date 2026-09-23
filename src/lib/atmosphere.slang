@@ -1,4 +1,5 @@
 import aperture;
+import helper.util;
 
 Texture2D tex_skyTransmittanceLUT;
 
@@ -18,10 +19,9 @@ public float2 fromSubUvsToUnit(float2 unit, float2 resolution) {
     return (unit - 0.5 / resolution) * (resolution / (resolution - 1.0));
 }
 /////////////////////////////////////
-static const float PI = 3.14159265359;
 
-static const int NUM_STEPS = 32;
-static const int TRANSMITTANCE_LUT_STEPS = 40;
+public static const int SKY_VIEW_LUT_STEPS = 32;
+public static const int TRANSMITTANCE_LUT_STEPS = 40;
 
 // coefficients
 static const float3 ATMOSPHERE_RAYLEIGH_SCATTERING_COEFFICIENT = float3(0.005802, 0.013558, 0.033100);
@@ -55,8 +55,21 @@ static const float ATMOSPHERE_THICKNESS_KM = 100.0;
 static const float ATMOSHPHERE_BOTTOM_SPHERE_RADIUS_KM = EARTH_RADIUS_KM;
 static const float ATMOSPHERE_TOP_SPHERE_RADIUS_KM = ATMOSHPHERE_BOTTOM_SPHERE_RADIUS_KM + ATMOSPHERE_THICKNESS_KM;
 
-static const float MOON_ILLUMINANCE = 0.25;
-static const float SUN_ILLUMINANCE = 128000;
+public static const float SUN_ANGULAR_DIAMETER_DEG = 0.545;
+public static const float SUN_ANGULAR_DIAMETER_RAD = radians(SUN_ANGULAR_DIAMETER_DEG);
+public static const float SUN_ANGULAR_RADIUS_DEG = SUN_ANGULAR_DIAMETER_DEG / 2.0;
+public static const float SUN_ANGULAR_RADIUS_RAD = SUN_ANGULAR_DIAMETER_RAD / 2.0;
+public static const float SUN_SOLID_ANGLE = 2.0 * PI * (1.0 - cos(SUN_ANGULAR_RADIUS_DEG * (PI / 180.0)));
+public static const float3 SUN_ILLUMINANCE = float3(128000.0);
+public static const float3 SUN_LUMINANCE = SUN_ILLUMINANCE / SUN_SOLID_ANGLE;
+
+public static const float MOON_ANGULAR_DIAMETER_DEG = 0.518;
+public static const float MOON_ANGULAR_DIAMETER_RAD = radians(MOON_ANGULAR_DIAMETER_DEG);
+public static const float MOON_ANGULAR_RADIUS_DEG = MOON_ANGULAR_DIAMETER_DEG / 2.0;
+public static const float MOON_ANGULAR_RADIUS_RAD = MOON_ANGULAR_DIAMETER_RAD / 2.0;
+public static const float MOON_SOLID_ANGLE = 2.0 * PI * (1.0 - cos(MOON_ANGULAR_RADIUS_DEG * (PI / 180.0)));
+public static const float3 MOON_ILLUMINANCE = float3(0.25);
+public static const float3 MOON_LUMINANCE = MOON_ILLUMINANCE / MOON_SOLID_ANGLE;
 
 public float3 playerToAtmosphere(float3 playerPos) {
     return fma(playerPos, rcp(1000.0), CAMERA_OFFSET_KM);
@@ -94,6 +107,21 @@ public struct MediumSample {
 
     float3 totalScattering;
     float3 totalExtinction;
+}
+
+public float3 computeTransmittanceToCelestialLight(
+    float3 atmosphereSpacePos,
+    float3 playerSpaceDir,
+    Texture2D transmittanceLut
+) {
+    float altitude = length(atmosphereSpacePos);
+
+    float3 upDir = atmosphereSpacePos / altitude;
+    float zenithCosAngle = dot(playerSpaceDir, upDir);
+
+    float2 uv;
+    LutTransmittanceParamsToUv(altitude, zenithCosAngle, uv);
+    return transmittanceLut.SampleLevel(apt_linearSampler, uv, 0.0).rgb;
 }
 
 public MediumSample sampleMedium(float sampleAltitude) {
@@ -169,66 +197,6 @@ public float rayleighPhase(float cosTheta) {
     return factor * (1.0 + cosTheta * cosTheta);
 }
 
-//// Second raymarch for sky
-bool getDistancesForSecondRay(in float2 atmosLayerTop, in float2 atmosLayerBottom, out float furthestDistance) {
-
-    // ray existed the top sphere but didn't enter, its origin is inside of the atmosphere
-    if (atmosLayerTop.x < 0.0) {
-        furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
-
-        return true;
-    }
-
-    return false;
-}
-
-// public float3 rayMarchSecondary(in float3 playerSpaceRayOrigin, in float3 lightDir) {
-    
-//     float3 transmittance = float3(1.0);
-
-//     float3 rayOrigin = playerSpaceRayOrigin;
-
-//     float2 atmosLayerBottom = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSHPHERE_BOTTOM_SPHERE_RADIUS_KM);
-//     float2 atmosLayerTop = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSPHERE_TOP_SPHERE_RADIUS_KM);
-
-//     // if (atmosLayerBottom.x >= 0.0) {
-//     // return float3(0.0);
-//     // }
-
-//     ////
-//     float closestDistance = 0.0;
-//     float furthestDistance = 0.0;
-
-//     // Check if need to raymarch
-//     bool needToRayMarch = getDistancesForSecondRay(atmosLayerTop, atmosLayerBottom, furthestDistance);
-
-//     if (!needToRayMarch) {
-//         return transmittance;
-//     }
-
-//     float3 entryPointPosition = playerSpaceRayOrigin + lightDir * closestDistance;
-//     float3 exitPointPosition = playerSpaceRayOrigin + lightDir * furthestDistance;
-
-//     // from entry to exit point in defined number of steps
-//     float3 rayStep = (exitPointPosition - entryPointPosition) / float(NUM_STEPS);
-
-//     // Distance between each step;
-//     float rayStepLength = length(rayStep);
-
-//     for (int i = 0; i < TRANSMITTANCE_LUT_STEPS; i++) {
-//         float3 rayPos = lerp(entryPointPosition, exitPointPosition, (float(i) + 0.5) / float(NUM_STEPS));
-
-//         float sampleAltitude = length(rayPos);
-
-//         MediumSample mediumSample = sampleMedium(sampleAltitude);
-//         float3 sampleTransmittance = exp(-mediumSample.totalExtinction * rayStepLength);
-
-//         transmittance *= sampleTransmittance;
-//     }
-
-//     return transmittance;
-// }
-
 //// First raymarch for sky
 bool getDistances(in float2 atmosLayerTop, in float2 atmosLayerBottom, out float closestDistance, out float furthestDistance) {
 
@@ -256,7 +224,7 @@ bool getDistances(in float2 atmosLayerTop, in float2 atmosLayerBottom, out float
     return true;
 }
 
-public float3 computeIntegratedSingleScatteringForCelestialLight(MediumSample mediumSample, float lightRayleighPhase, float lightMiePhase, float3 rayPos, float3 lightDir, float3 sampleTransmittance, float lightIlluminance) {
+public float3 computeIntegratedSingleScatteringForCelestialLight(MediumSample mediumSample, float lightRayleighPhase, float lightMiePhase, float3 rayPos, float3 lightDir, float3 sampleTransmittance, float3 lightIlluminance) {
 
     float3 phaseTimesMediumScattering = mediumSample.rayleighScattering * lightRayleighPhase + mediumSample.mieScattering * lightMiePhase;
 

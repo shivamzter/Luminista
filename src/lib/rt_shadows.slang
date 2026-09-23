@@ -1,4 +1,4 @@
-public module shadow;
+public module rt_shadows;
 
 import aperture;
 import settings;

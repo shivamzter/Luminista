@@ -1,6 +1,5 @@
 import aperture;
 import settings;
-// import lib.shadow;
 import lib.atmosphere;
 import lib.rt_shadows;
 import helper.util;
@@ -10,9 +9,6 @@ RWTexture2D tex_normal;
 RWTexture2D tex_lightMap;
 
 Texture2D tex_skyViewScatteringLUT;
-
-public static const float3 SUN_ILLUMINANCE = float3(128000.0);
-public static const float3 MOON_ILLUMINANCE = float3(0.25);
 
 [shader("compute")]
 [numthreads(16, 16)]

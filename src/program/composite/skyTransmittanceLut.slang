@@ -22,11 +22,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float3 entryPointPosition;
         float3 exitPointPosition;
 
-        int numSteps = 40;
-
         getRayMarchEndpoints(rayOrigin, rayDir, entryPointPosition, exitPointPosition);
 
-        marchPrimaryRay ray = rayMarch(entryPointPosition, exitPointPosition, numSteps);
+        marchPrimaryRay ray = rayMarch(entryPointPosition, exitPointPosition, TRANSMITTANCE_LUT_STEPS);
         
         tex_skyTransmittanceLUT[coord] = float4(ray.transmittance, 1.0);
     }

@@ -28,9 +28,9 @@ struct VertexOutput {
 //     return tbnMatrix;
 // }
 
-float linearStep(float min, float max, float x) {
-	return saturate((x - min) / (max - min));
-}
+// float linearStep(float min, float max, float x) {
+// 	return saturate((x - min) / (max - min));
+// }
 
 struct ForwardTranslucentShader : Shader<VertexOutput, FragmentOutput> {
     static void emitVertex(Vertex input, ObjectTransforms transforms, out VertexOutput output, out float4 pos) {
