@@ -34,7 +34,7 @@ public class Luminista implements ShaderPack {
         pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);
 
         // Shadow passes
-        // if (pipeline.settings().getBoolValue("SHADOW_ENABLED")) {
+        if (pipeline.settings().getBoolValue("SHADOW_ENABLED")) {
 
             final var translucentShadowUsages = new ProgramUsage[] {
 			ProgramUsage.SHADOW_TERRAIN_TRANSLUCENT,
@@ -48,7 +48,7 @@ public class Luminista implements ShaderPack {
             for (var usage : translucentShadowUsages) {
             pipeline.object(usage, "program/object/shadow_translucent", "ShadowTranslucentShader").writes("color", tex_shadowColor, new BlendMode(BlendFactors.SRC_ALPHA, BlendFactors.ONE_MINUS_SRC_ALPHA, BlendFactors.ONE, BlendFactors.ONE_MINUS_SRC_ALPHA));
             }
-        // }
+        }
 
         // Object passes
         pipeline.object(ProgramUsage.SKYBOX, "program/object/skybox", "SkyShader");
@@ -74,9 +74,9 @@ public class Luminista implements ShaderPack {
     @Override
     public void configureRenderer(RendererConfig rendererConfig) {
         rendererConfig.setSunPathRotation(23.47f);
-        // rendererConfig.setShadowCascades(rendererConfig.getSettings().getIntValue("SHADOW_CASCADE_COUNT"));
-        // rendererConfig.setShadowDistance(rendererConfig.getSettings().getIntValue("SHADOW_DISTANCE"));
-        // rendererConfig.setShadowResolution(rendererConfig.getSettings().getIntValue("SHADOW_RESOLUTION"));
+        rendererConfig.setShadowCascades(rendererConfig.getSettings().getIntValue("SHADOW_CASCADE_COUNT"));
+        rendererConfig.setShadowDistance(rendererConfig.getSettings().getIntValue("SHADOW_DISTANCE"));
+        rendererConfig.setShadowResolution(rendererConfig.getSettings().getIntValue("SHADOW_RESOLUTION"));
         rendererConfig.enableRT();
     }
 }

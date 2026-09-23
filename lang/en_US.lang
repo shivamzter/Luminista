@@ -4,6 +4,13 @@ screen.vanillaAO = Vanilla AO
 option.VANILLA_AO = Vanilla Ambient Occlusion
 option.VANILLA_AO_INTENSITY = Intensity
 
+screen.shadow = Shadows
+
+option.SHADOW_ENABLED = Shadows
+option.SHADOW_CASCADE_COUNT = Cascade Count
+option.SHADOW_RESOLUTION = Shadow Resolution
+option.SHADOW_DISTANCE = Shadow Distance
+
 screen.postProcess = Post Processing
 
 screen.exposure = Exposure
