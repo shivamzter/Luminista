@@ -8,7 +8,8 @@ Texture2D tex_skyTransmittanceLUT;
 Jake Michie | Dev of Continuum - For basically everything with atmosphere;
 */
 
-public static const uint2 SKY_VIEW_LUT_SIZE = uint2(256, 128);
+public static const uint2 SKY_VIEW_LUT_SIZE = uint2(192, 108);
+public static const uint2 SKY_MUL_SCATTER_LUT_SIZE = uint2(32, 32);
 public static const uint2 SKY_TRANSMITTANCE_LUT_SIZE = uint2(256, 64);
 
 public float2 fromUnitToSubUvs(float2 unit, float2 resolution) {
@@ -21,6 +22,7 @@ public float2 fromSubUvsToUnit(float2 unit, float2 resolution) {
 /////////////////////////////////////
 
 public static const int SKY_VIEW_LUT_STEPS = 32;
+public static const int SKY_MUL_SCATTER_LUT_STEPS = 20;
 public static const int TRANSMITTANCE_LUT_STEPS = 40;
 
 // coefficients
