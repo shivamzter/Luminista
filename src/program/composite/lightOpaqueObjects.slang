@@ -24,7 +24,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
         normal.xyz = octDecode(normal.xy);
 
         float4 lightMap = tex_lightMap[coord];
-        lightMap.rgb = pow(lightMap.rgb, float3(2.2));
+        // lightMap.rgb = pow(lightMap.rgb, float3(2.2));
 
         float vanillaBlockLight = lightMap.r;
         float vanillaAO = lightMap.b;

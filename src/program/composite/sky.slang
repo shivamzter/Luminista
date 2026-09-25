@@ -20,6 +20,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
         if (depth == 0.0) {
             float2 texcoord = (coord + 0.5) / ap.game.renderSize;
 
+            float4 color = tex_main[coord];
+
             // Space conversions
             float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
             float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
@@ -39,7 +41,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 sunDisc = select(sunViewDot >= cos(SUN_ANGULAR_RADIUS_RAD), SUN_LUMINANCE, float3(0.0));
             float3 moonDisc = select(moonViewDot >= cos(MOON_ANGULAR_RADIUS_RAD), MOON_LUMINANCE, float3(0.0));
 
-            float3 color = (sunDisc + moonViewDot) * skyTransmittance + skyScattering;
+            // color.rgb += (sunDisc + moonDisc);
+
+            color.rgb = color.rgb * skyTransmittance + skyScattering;
 
             tex_main[coord] = float4(color.rgb, 1.0);
         }

@@ -8,7 +8,7 @@ public static const uint2 SKY_TRANSMITTANCE_LUT_SIZE = uint2(256, 64);
 public static const uint2 SKY_MUL_SCATTER_LUT_SIZE = uint2(32, 32);
 public static const uint2 SKY_VIEW_LUT_SIZE = uint2(192, 108);
 
-public static const int TRANSMITTANCE_LUT_STEPS = 80;
+public static const int TRANSMITTANCE_LUT_STEPS = 40;
 public static const int SKY_MUL_SCATTER_LUT_STEPS = 20;
 public static const int SKY_VIEW_LUT_STEPS = 32;
 

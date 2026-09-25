@@ -60,7 +60,7 @@ float4 main(float2 pos: SV_Position) {
         color.rgb = PBRNeutralToneMapping(color.rgb);
     }
 
-    // color.rgb = pow(color.rgb, float3(1.0 / 2.2));
+    color.rgb = pow(color.rgb, float3(1.0 / 2.2));
 
     // return float4(skyViewScatteringLUT / 1500, 1.0);
     return color;
