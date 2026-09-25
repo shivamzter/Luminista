@@ -8,64 +8,64 @@ public struct primaryRayMarch{
 }
 
 //// Second raymarch for sky
-bool getDistancesForSecondRay(in float2 atmosLayerTop, in float2 atmosLayerBottom, out float furthestDistance) {
+// bool getDistancesForSecondRay(in float2 atmosLayerTop, in float2 atmosLayerBottom, out float furthestDistance) {
 
-    // ray existed the top sphere but didn't enter, its origin is inside of the atmosphere
-    if (atmosLayerTop.x < 0.0) {
+//     // ray existed the top sphere but didn't enter, its origin is inside of the atmosphere
+//     if (atmosLayerTop.x < 0.0) {
 
-    furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
+//     furthestDistance = atmosLayerBottom.x >= 0.0 ? min(atmosLayerTop.y, atmosLayerBottom.x) : atmosLayerTop.y;
 
-    return true;
-    }
+//     return true;
+//     }
 
-    return false;
-}
+//     return false;
+// }
 
-public float3 rayMarchSecondary(in float3 playerSpaceRayOrigin) {
+// public float3 rayMarchSecondary(in float3 playerSpaceRayOrigin) {
     
-    float3 transmittance = float3(1.0);
+//     float3 transmittance = float3(1.0);
 
-    float3 rayOrigin = playerSpaceRayOrigin;
+//     float3 rayOrigin = playerSpaceRayOrigin;
     
-    // float3 lightPos = mul(float3x3(ap.camera.viewInv), ap.celestial.sunPosition);
-    float3 lightDir = normalize(ap.celestial.position);
+//     // float3 lightPos = mul(float3x3(ap.camera.viewInv), ap.celestial.sunPosition);
+//     float3 lightDir = normalize(ap.celestial.position);
 
-    float2 atmosLayerBottom = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSPHERE_BOTTOM_RADIUS_KM);
-    float2 atmosLayerTop = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSPHERE_TOP_RADIUS_KM);
+//     float2 atmosLayerBottom = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSPHERE_BOTTOM_RADIUS_KM);
+//     float2 atmosLayerTop = sphIntersect(rayOrigin, lightDir, CENTER_OF_EARTH, ATMOSPHERE_TOP_RADIUS_KM);
 
-    ////
-    float closestDistance = 0.0;
-    float furthestDistance = 0.0;
+//     ////
+//     float closestDistance = 0.0;
+//     float furthestDistance = 0.0;
 
-    // Check if need to raymarch
-    bool needToRayMarch = getDistancesForSecondRay(atmosLayerTop, atmosLayerBottom, furthestDistance);
+//     // Check if need to raymarch
+//     bool needToRayMarch = getDistancesForSecondRay(atmosLayerTop, atmosLayerBottom, furthestDistance);
 
-    if (!needToRayMarch) {
-        return transmittance;
-    }
+//     if (!needToRayMarch) {
+//         return transmittance;
+//     }
 
-    float3 entryPointPosition = rayOrigin + lightDir * closestDistance;
-    float3 exitPointPosition = rayOrigin + lightDir * furthestDistance;
+//     float3 entryPointPosition = rayOrigin + lightDir * closestDistance;
+//     float3 exitPointPosition = rayOrigin + lightDir * furthestDistance;
 
-    // from entry to exit point in defined number of steps
-    float3 rayStep = (exitPointPosition - entryPointPosition) / float(SKY_VIEW_LUT_STEPS);
+//     // from entry to exit point in defined number of steps
+//     float3 rayStep = (exitPointPosition - entryPointPosition) / float(SKY_VIEW_LUT_STEPS);
 
-    // Distance between each step;
-    float rayStepLength = length(rayStep);
+//     // Distance between each step;
+//     float rayStepLength = length(rayStep);
 
-    for (int i = 0; i < SKY_VIEW_LUT_STEPS; i++) {
-        float3 rayPos = lerp(entryPointPosition, exitPointPosition, (float(i) + 0.5) / float(SKY_VIEW_LUT_STEPS));
+//     for (int i = 0; i < SKY_VIEW_LUT_STEPS; i++) {
+//         float3 rayPos = lerp(entryPointPosition, exitPointPosition, (float(i) + 0.5) / float(SKY_VIEW_LUT_STEPS));
 
-        float sampleAltitude = length(rayPos);
+//         float sampleAltitude = length(rayPos);
 
-        MediumSample mediumSample = sampleMedium(sampleAltitude);
-        float3 sampleTransmittance = exp(-mediumSample.totalExtinction * rayStepLength);
+//         MediumSample mediumSample = sampleMedium(sampleAltitude);
+//         float3 sampleTransmittance = exp(-mediumSample.totalExtinction * rayStepLength);
 
-        transmittance *= sampleTransmittance;
-    }
+//         transmittance *= sampleTransmittance;
+//     }
 
-    return transmittance;
-}
+//     return transmittance;
+// }
 
 public float3 computeIntegratedSingleScatteringForCelestialLight(MediumSample mediumSample, float lightRayleighPhase, float lightMiePhase, float3 rayPos, float3 lightDir, float3 sampleTransmittance, float3 lightIlluminance) {
 

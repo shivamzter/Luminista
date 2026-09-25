@@ -32,6 +32,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float depth = ap.opaqueDepth[coord];
 
         if (depth > 0.0) {
+            color.rgb = pow(color.rgb, float3(2.2));
+
             // Space conversions
             float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
             float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
@@ -63,8 +65,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
             // float3 indirectLighting = skyLighting;
 
             color.rgb *= directLighting;
-
-            tex_main[coord] = float4(color.rgb, 1.0);
         }
+
+        tex_main[coord] = float4(color.rgb, 1.0);
     }
 }

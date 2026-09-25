@@ -17,10 +17,10 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float depth = ap.opaqueDepth[coord];
 
+        float4 color = tex_main[coord];
+
         if (depth == 0.0) {
             float2 texcoord = (coord + 0.5) / ap.game.renderSize;
-
-            float4 color = tex_main[coord];
 
             // Space conversions
             float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
@@ -44,8 +44,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
             // color.rgb += (sunDisc + moonDisc);
 
             color.rgb = color.rgb * skyTransmittance + skyScattering;
-
-            tex_main[coord] = float4(color.rgb, 1.0);
         }
+
+        tex_main[coord] = float4(color.rgb, 1.0);
     }
 }
