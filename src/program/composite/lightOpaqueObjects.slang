@@ -19,6 +19,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float2 texcoord = (coord + 0.5) / ap.game.renderSize;
 
         float4 color = tex_main[coord];
+        color.rgb = decodeColorRgbm16F(color);
         
         float4 normal = tex_normal[coord];
         normal.xyz = octDecode(normal.xy);
@@ -67,6 +68,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
             color.rgb *= directLighting;
         }
 
-        tex_main[coord] = float4(color.rgb, 1.0);
+        tex_main[coord] = encodeColorRgbm16F(color.rgb);
     }
 }

@@ -18,6 +18,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float depth = ap.opaqueDepth[coord];
 
         float4 color = tex_main[coord];
+        color.rgb = decodeColorRgbm16F(color);
 
         if (depth == 0.0) {
             float2 texcoord = (coord + 0.5) / ap.game.renderSize;
@@ -46,6 +47,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
             color.rgb = color.rgb * skyTransmittance + skyScattering;
         }
 
-        tex_main[coord] = float4(color.rgb, 1.0);
+        tex_main[coord] = encodeColorRgbm16F(color.rgb);
     }
 }

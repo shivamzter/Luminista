@@ -104,7 +104,7 @@ struct ForwardTranslucentShader : Shader<VertexOutput, FragmentOutput> {
         // color.rgb *= vanillaAO;
 
         ////////// OUTPUTS //////////
-        output.color = float4(color.rgb, 1.0);
+        output.color = encodeColorRgbm16F(color.rgb);
 
         return output;
     }

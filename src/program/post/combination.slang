@@ -31,6 +31,8 @@ float4 main(float2 pos: SV_Position) {
     float depth = ap.opaqueDepth[uint2(pos)];
 
     float4 color = tex_main[uint2(pos)];
+    color.rgb = decodeColorRgbm16F(color);
+
     float exposure = exposureBuffer[0].y;
 
     float2 uv = pos / ap.game.renderSize;
@@ -62,7 +64,10 @@ float4 main(float2 pos: SV_Position) {
 
     color.rgb = pow(color.rgb, float3(1.0 / 2.2));
 
-    // color.rgb += (1.0 / 255.0) * fract(52.9829189 * fract(dot(pos, float2(0.06711056, 0.00583715)))) - (0.5 / 255.0);
+    // if (depth == 0.0) {
+        // color.rgb += (1.0 / 255.0) * fract(52.9829189 * fract(dot(pos, float2(0.06711056, 0.00583715)))) - (0.5 / 255.0);
+    // }
+    
 
     // return float4(skyViewScatteringLUT / 1500, 1.0);
     return color;
