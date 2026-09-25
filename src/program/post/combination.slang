@@ -35,15 +35,12 @@ float4 main(float2 pos: SV_Position) {
 
     float2 uv = pos / ap.game.renderSize;
 
-    float2 lutUv = float2(uv.x, lerp(0.5, 1.0, uv.y));
-    lutUv.y = uv.y * 0.5 + 0.5;
-
-    color.rgb = decodeColorRgbm16F(color);
+    float2 lutUv = float2(uv.x, uv.y * 0.5 + 0.5);
 
     float3 skyTransmittanceLUT = tex_skyTransmittanceLUT.SampleLevel(apt_linearSampler, uv, 0).rgb;
 
     float3 skyViewTransmittanceLUT = tex_skyViewTransmittanceLUT.SampleLevel(apt_linearSampler, uv, 0).rgb;
-    float3 skyViewScatteringLUT = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, lutUv, 0));
+    float3 skyViewScatteringLUT = tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, uv, 0).rgb;
 
     if (!userSettings.AUTO_EXPOSURE) {
         color.rgb *= userSettings.MANUAL_EXPOSURE;
@@ -63,12 +60,8 @@ float4 main(float2 pos: SV_Position) {
         color.rgb = PBRNeutralToneMapping(color.rgb);
     }
 
-    // if (depth > 0.0) {
-        color.rgb = pow(color.rgb, float3(1.0 / 2.2));
-    // }
+    // color.rgb = pow(color.rgb, float3(1.0 / 2.2));
 
-    // color.rgb += (1.0 / 255.0) * interleavedGradientNoise(pos.xy) - (0.5 / 255.0);
-
-    // return float4(skyViewScatteringLUT / 100, 1.0);
+    // return float4(skyViewScatteringLUT / 1500, 1.0);
     return color;
 }

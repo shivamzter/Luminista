@@ -56,7 +56,7 @@ struct DeferredOpaqueShader : Shader<VertexOutput, FragmentOutput> {
         float vanillaAO = select(vIn.light.b == 0.0, 1.0, vIn.light.b);
 
         ////////// OUTPUTS //////////
-        output.color = encodeColorRgbm16F(color.rgb);
+        output.color = float4(color.rgb, 1.0);
         output.normal = float4(octEncode(vIn.normal), 1.0, 1.0);
         output.lightMap = float4(vanillaBlockLight, vanillaSkyLight, vanillaAO, 1.0);
 

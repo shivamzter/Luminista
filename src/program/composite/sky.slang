@@ -1,6 +1,6 @@
 import aperture;
 import helper.util;
-import lib.atmosphere;
+import lib.atmosphere.atmos_all;
 
 Texture2D tex_skyViewTransmittanceLUT;
 Texture2D tex_skyViewScatteringLUT;
@@ -15,15 +15,11 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
     if (all(coord < ap.game.renderSize)) {
 
-        float2 texcoord = (coord + 0.5) / ap.game.renderSize;
-
         float depth = ap.opaqueDepth[coord];
 
-        float4 color = tex_main[coord];
-        color.rgb = decodeColorRgbm16F(color);
-        color.rgb = pow(color.rgb, float3(2.2));
-
         if (depth == 0.0) {
+            float2 texcoord = (coord + 0.5) / ap.game.renderSize;
+
             // Space conversions
             float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
             float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
@@ -34,8 +30,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float2 skyViewUV = getUvFromLonLatNonLinear(getLonLatFromDir(playerSpaceRayDirection));
             skyViewUV = fromUnitToSubUvs(skyViewUV, float2(SKY_VIEW_LUT_SIZE));
 
-            float3 skyScattering = tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0).rgb;
             float3 skyTransmittance = tex_skyViewTransmittanceLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0).rgb;
+            float3 skyScattering = tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0).rgb;
 
             float sunViewDot = dot(normalize(playerPos), normalize(ap.celestial.sunPosition));
             float moonViewDot = dot(normalize(playerPos), normalize(ap.celestial.moonPosition));
@@ -43,11 +39,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 sunDisc = select(sunViewDot >= cos(SUN_ANGULAR_RADIUS_RAD), SUN_LUMINANCE, float3(0.0));
             float3 moonDisc = select(moonViewDot >= cos(MOON_ANGULAR_RADIUS_RAD), MOON_LUMINANCE, float3(0.0));
 
-            color.rgb = sunDisc + moonDisc;
+            float3 color = (sunDisc + moonViewDot) * skyTransmittance + skyScattering;
 
-            color.rgb = color.rgb * skyTransmittance + skyScattering;
-
-            tex_main[coord] = encodeColorRgbm16F(color.rgb);
+            tex_main[coord] = float4(color.rgb, 1.0);
         }
     }
 }

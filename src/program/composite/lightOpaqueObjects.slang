@@ -1,6 +1,6 @@
 import aperture;
 import settings;
-import lib.atmosphere;
+import lib.atmosphere.atmos_all;
 import lib.rt_shadows;
 import helper.util;
 
@@ -19,8 +19,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float2 texcoord = (coord + 0.5) / ap.game.renderSize;
 
         float4 color = tex_main[coord];
-        color.rgb = decodeColorRgbm16F(color);
-        color.rgb = pow(color.rgb, float3(2.2));
         
         float4 normal = tex_normal[coord];
         normal.xyz = octDecode(normal.xy);
@@ -53,20 +51,20 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float2 upUV = getUvFromLonLatNonLinear(getLonLatFromDir(float3(0.0, 1.0, 0.0)));
             upUV = fromUnitToSubUvs(upUV, float2(SKY_VIEW_LUT_SIZE));
 
+            float3 skyLighting = tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, upUV, 0).rgb;
+
             float ambientOcclusion = 1.0;
 
             if (userSettings.VANILLA_AO) {
                 ambientOcclusion *= lerp(1.0, vanillaAO, userSettings.VANILLA_AO_INTENSITY);
             }
 
-            float3 skyLighting = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, upUV, 0));
-
             float3 directLighting = shadow * (sunLighting + moonLighting);
-            float3 indirectLighting = ((vanillaBlockLight * 182) + skyLighting) * float3(ambientOcclusion);
+            // float3 indirectLighting = skyLighting;
 
-            color.rgb *= directLighting + indirectLighting;
+            color.rgb *= directLighting;
 
-            tex_main[coord] = encodeColorRgbm16F(color.rgb);
+            tex_main[coord] = float4(color.rgb, 1.0);
         }
     }
 }

@@ -1,6 +1,6 @@
 import aperture;
 import helper.util;
-import lib.atmosphere;
+import lib.atmosphere.atmos_all;
 
 RWTexture2D tex_skyTransmittanceLUT;
 
@@ -22,10 +22,11 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float3 entryPointPosition;
         float3 exitPointPosition;
 
-        getRayMarchEndpoints(rayOrigin, rayDir, entryPointPosition, exitPointPosition);
+        if (getRayMarchEndpoints(rayOrigin, rayDir, entryPointPosition, exitPointPosition)) {
 
-        marchPrimaryRay ray = rayMarch(entryPointPosition, exitPointPosition, TRANSMITTANCE_LUT_STEPS);
-        
-        tex_skyTransmittanceLUT[coord] = float4(ray.transmittance, 1.0);
+            primaryRayMarch ray = rayMarch(entryPointPosition, exitPointPosition, TRANSMITTANCE_LUT_STEPS);
+
+            tex_skyTransmittanceLUT[coord] = float4(ray.transmittance, 1.0);
+        };
     }
 }
