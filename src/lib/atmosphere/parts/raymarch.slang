@@ -115,7 +115,7 @@ public primaryRayMarch rayMarch(in float3 entryPointPos, in float3 exitPointPos,
         float3 sampleTransmittance = exp(-mediumSample.totalExtinction * rayStepLength);
 
         float3 sunScattering = computeIntegratedSingleScatteringForCelestialLight(mediumSample, sunLightRayleighPhase, sunLightMiePhase, rayPos, sunLightDir, sampleTransmittance, SUN_ILLUMINANCE);
-        float3 moonScattering = computeIntegratedSingleScatteringForCelestialLight(mediumSample, moonLightRayleighPhase, moonLightMiePhase, rayPos, sunLightDir, sampleTransmittance, MOON_ILLUMINANCE);
+        float3 moonScattering = computeIntegratedSingleScatteringForCelestialLight(mediumSample, moonLightRayleighPhase, moonLightMiePhase, rayPos, moonLightDir, sampleTransmittance, MOON_ILLUMINANCE);
 
         ray.scattering += (sunScattering + moonScattering) * ray.transmittance;
         ray.transmittance *= sampleTransmittance;

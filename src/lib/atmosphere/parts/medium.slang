@@ -49,6 +49,6 @@ public float miePhaseCornetteShanks(float cosTheta, float g) {
     float gSqr = g * g;
     float k = 3.0 / (8.0 * PI) * (1.0 - gSqr) / (2.0 + gSqr);
 
-    // the minus sign in cosTheta??
-    return k * (1.0 + cosTheta * cosTheta) / pow(1.0 + gSqr - 2.0 * g * -cosTheta, 1.5);
+    // the last cosTheta is -cosTheta??
+    return k * (1.0 + cosTheta * cosTheta) / pow(1.0 + gSqr - 2.0 * g * cosTheta, 1.5);
 }

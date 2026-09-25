@@ -70,8 +70,6 @@ static const float OZONE_LAYER1_LINEAR_TERM = -1.0 / OZONE_SCALE_HEIGHT;
 
 static const float MIE_PHASE_G = 0.8;
 
-// MULTI SCATTER ////////////////////
-
 // MULTI-SCATTER ////////////////////
 static const float ISOTROPIC_PHASE = 1.0 / (4.0 * PI);   // same in every direction
 static const float3 GROUND_ALBEDO = float3(0.3);         // how much light the ground bounces back

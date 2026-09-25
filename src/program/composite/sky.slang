@@ -41,7 +41,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 sunDisc = select(sunViewDot >= cos(SUN_ANGULAR_RADIUS_RAD), SUN_LUMINANCE, float3(0.0));
             float3 moonDisc = select(moonViewDot >= cos(MOON_ANGULAR_RADIUS_RAD), MOON_LUMINANCE, float3(0.0));
 
-            // color.rgb += (sunDisc + moonDisc);
+            color.rgb += (sunDisc + moonDisc);
 
             color.rgb = color.rgb * skyTransmittance + skyScattering;
         }
