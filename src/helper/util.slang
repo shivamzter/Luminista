@@ -27,6 +27,22 @@ public float3 octDecode(float2 f)
     return normalize(n);
 }
 
+public float3 srgbToLinear(float3 c) {
+    return select(
+        c <= float3(0.04045),
+        c / 12.92,
+        pow((c + 0.055) / 1.055, float3(2.4))
+    );
+}
+
+public float3 linearToSRGB(float3 l) {
+    return select(
+        l <= float3(0.0031308),
+        12.92 * l,
+        (1.055) * pow(l, float3(1.0 / 2.4)) - 0.055
+    );
+}
+
 public float4 encodeColorRgbm16F(float3 color) {
     float magnitude = clamp(max3(color.r, color.g, color.b), 0.0, float16_t::maxValue);
 

@@ -59,10 +59,12 @@ float4 main(float2 pos: SV_Position) {
     } else if (userSettings.TONE_MAPPING == ToneMapping.ACES) {
         color.rgb = aces(color.rgb);
     } else if (userSettings.TONE_MAPPING == ToneMapping.Neutral) {
+        color.rgb = rec709ToLinear(linearToRec709(color.rgb));
         color.rgb = PBRNeutralToneMapping(color.rgb);
     }
 
-    color.rgb = pow(color.rgb, float3(1.0 / 2.2));
+    color.rgb = linearToSRGB(color.rgb);
+
 
     // if (depth == 0.0) {
         // color.rgb += (1.0 / 255.0) * fract(52.9829189 * fract(dot(pos, float2(0.06711056, 0.00583715)))) - (0.5 / 255.0);

@@ -35,7 +35,7 @@ public class LuministaSettings implements PackSettings {
 
 		final var screenExposure = screenPostProcess.child("exposure");
 		screenExposure.option("AUTO_EXPOSURE", OptionType.boolType(true), false);
-		screenExposure.option("MANUAL_EXPOSURE", OptionType.floatType(0.0f, 5.0f, 0.1f, 0.0f), true);
+		screenExposure.option("MANUAL_EXPOSURE", OptionType.floatType(0.0f, 1.0f, 0.01f, 0.0f), true);
 
 		final var screenToneMapping = screenPostProcess.child("toneMapping");
 		screenToneMapping.option("TONE_MAPPING", OptionType.enumType("ToneMapping", 1, "Reinhard", "Reinhard2", "ReinhardJodie", "ACES", "Neutral"), false);

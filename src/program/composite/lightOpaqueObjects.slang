@@ -34,7 +34,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float depth = ap.opaqueDepth[coord];
 
         if (depth > 0.0) {
-            color.rgb = pow(color.rgb, float3(2.2));
+            color.rgb = srgbToLinear(color.rgb);
 
             // Space conversions
             float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
