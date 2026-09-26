@@ -30,6 +30,10 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             float3 playerSpaceRayDirection = normalize(playerPos);
 
+            float3 cameraAtmosPos = playerToAtmosphere(float3(0.0, ap.camera.position.y, 0.0));
+            
+            float planetVisibility = earthShadow(cameraAtmosPos, playerSpaceRayDirection);
+
             float2 skyViewUV = getUvFromLonLatNonLinear(getLonLatFromDir(playerSpaceRayDirection));
             skyViewUV = fromUnitToSubUvs(skyViewUV, float2(SKY_VIEW_LUT_SIZE));
 
@@ -42,7 +46,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 sunDisc = select(sunViewDot >= cos(SUN_ANGULAR_RADIUS_RAD), SUN_LUMINANCE, float3(0.0));
             float3 moonDisc = select(moonViewDot >= cos(MOON_ANGULAR_RADIUS_RAD), MOON_LUMINANCE, float3(0.0));
 
-            color.rgb += (sunDisc + moonDisc);
+            color.rgb += (sunDisc + moonDisc) * planetVisibility;
 
             color.rgb = color.rgb * skyTransmittance + skyScattering;
         }
