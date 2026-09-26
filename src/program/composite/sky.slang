@@ -38,7 +38,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
             skyViewUV = fromUnitToSubUvs(skyViewUV, float2(SKY_VIEW_LUT_SIZE));
 
             float3 skyTransmittance = tex_skyViewTransmittanceLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0).rgb;
-            float3 skyScattering = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0));
+            float3 skyScattering = decodeColorRgbm16F(SampleTextureCatmullRom(tex_skyViewScatteringLUT, apt_linearSampler, skyViewUV, float2(SKY_VIEW_LUT_SIZE)));
 
             float sunViewDot = dot(normalize(playerPos), normalize(ap.celestial.sunPosition));
             float moonViewDot = dot(normalize(playerPos), normalize(ap.celestial.moonPosition));
