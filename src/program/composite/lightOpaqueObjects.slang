@@ -8,6 +8,7 @@ RWTexture2D tex_main;
 RWTexture2D tex_normal;
 RWTexture2D tex_lightMap;
 
+Texture2D tex_skyTransmittanceLUT;
 Texture2D tex_skyViewScatteringLUT;
 
 [shader("compute")]
@@ -40,16 +41,23 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
             float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
 
+            float3 playerAtmosPos = playerToAtmosphere(playerPos);
+
             float3 cameraPos = float3(0.0, ap.camera.position.y, 0.0);
             float3 rayOrigin = playerToAtmosphere(playerPos + cameraPos);
 
+            float3 surfaceNormal = normalize(normal.xyz);
+
             float3 shadow = getShadow(playerPos, normal.xyz);
 
-            float sunShadow = earthShadow(rayOrigin, normalize(ap.celestial.sunPosition));
-            float moonShadow = earthShadow(rayOrigin, normalize(ap.celestial.moonPosition));
+            float3 sunDir = normalize(ap.celestial.sunPosition);
+            float3 moonDir = normalize(ap.celestial.moonPosition);
 
-            float3 sunLighting = sunShadow * SUN_ILLUMINANCE * max(0.0, dot(normalize(normal.xyz), normalize(ap.celestial.sunPosition))) / PI;
-            float3 moonLighting = moonShadow * MOON_ILLUMINANCE * max(0.0, dot(normalize(normal.xyz), normalize(ap.celestial.moonPosition))) / PI;
+            float sunShadow = earthShadow(rayOrigin, sunDir);
+            float moonShadow = earthShadow(rayOrigin, moonDir);
+
+            float3 sunLighting = (sunShadow * SUN_ILLUMINANCE * computeTransmittanceToCelestialLight(rayOrigin, sunDir, tex_skyTransmittanceLUT)) * max(0.0, dot(surfaceNormal, sunDir)) / PI;
+            float3 moonLighting = (moonShadow * MOON_ILLUMINANCE * computeTransmittanceToCelestialLight(rayOrigin, moonDir, tex_skyTransmittanceLUT)) * max(0.0, dot(surfaceNormal, moonDir)) / PI;
 
             float2 upUV = getUvFromLonLatNonLinear(getLonLatFromDir(float3(0.0, 1.0, 0.0)));
             upUV = fromUnitToSubUvs(upUV, float2(SKY_VIEW_LUT_SIZE));
@@ -63,9 +71,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
             }
 
             float3 directLighting = shadow * (sunLighting + moonLighting);
-            // float3 indirectLighting = skyLighting;
+            float3 indirectLighting = skyLighting;
 
-            color.rgb *= directLighting;
+            color.rgb *= directLighting + indirectLighting;
         }
 
         tex_main[coord] = encodeColorRgbm16F(color.rgb);
