@@ -44,9 +44,10 @@ public float3 linearToSRGB(float3 l) {
 }
 
 public float4 encodeColorRgbm16F(float3 color) {
-    float magnitude = clamp(max3(color.r, color.g, color.b), 0.0, float16_t::maxValue);
+    float maxChannel = max3(color.r, color.g, color.b);
+    float norm = clamp(maxChannel / float16_t::maxValue, 1.0, float16_t::maxValue);
 
-    return float4(select(magnitude > 1e-6, color / magnitude, 0.0), magnitude);
+    return float4(select(maxChannel > 1e-6, color / norm, 0.0), norm);
 }
 
 public float3 decodeColorRgbm16F(float4 colorAndMagnitude) {

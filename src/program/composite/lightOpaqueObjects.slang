@@ -41,8 +41,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 viewPos = projectAndDivide(ap.camera.projectionInv, ndcPos);
             float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
 
-            float3 playerAtmosPos = playerToAtmosphere(playerPos);
-
             float3 cameraPos = float3(0.0, ap.camera.position.y, 0.0);
             float3 rayOrigin = playerToAtmosphere(playerPos + cameraPos);
 
@@ -62,7 +60,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float2 upUV = getUvFromLonLatNonLinear(getLonLatFromDir(float3(0.0, 1.0, 0.0)));
             upUV = fromUnitToSubUvs(upUV, float2(SKY_VIEW_LUT_SIZE));
 
-            float3 skyLighting = tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, upUV, 0).rgb;
+            float3 skyLighting = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, upUV, 0));
 
             float ambientOcclusion = 1.0;
 

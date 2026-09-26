@@ -33,6 +33,6 @@ void main(uint2 coord: SV_DispatchThreadID) {
         }
         
         tex_skyViewTransmittanceLUT[coord] = float4(transmittance, 1.0);
-        tex_skyViewScatteringLUT[coord] = float4(scattering, 1.0);   
+        tex_skyViewScatteringLUT[coord] = encodeColorRgbm16F(scattering);   
     }
 }
