@@ -10,6 +10,7 @@ enum ToneMapping {
 };
 
 internal extern static const bool value_AUTO_EXPOSURE;
+internal extern static const bool value_DEBUG_WHITE_WORLD;
 internal extern static const int value_SHADOW_CASCADE_COUNT;
 internal extern static const int value_SHADOW_DISTANCE;
 internal extern static const bool value_SHADOW_ENABLED;
@@ -18,9 +19,11 @@ internal extern static const int value_TONE_MAPPING;
 internal extern static const bool value_VANILLA_AO;
 
 struct Settings {
+    float DEBUG_ALBEDO;
     float MANUAL_EXPOSURE;
     float VANILLA_AO_INTENSITY;
     static const bool AUTO_EXPOSURE = value_AUTO_EXPOSURE;
+    static const bool DEBUG_WHITE_WORLD = value_DEBUG_WHITE_WORLD;
     static const int SHADOW_CASCADE_COUNT = value_SHADOW_CASCADE_COUNT;
     static const int SHADOW_DISTANCE = value_SHADOW_DISTANCE;
     static const bool SHADOW_ENABLED = value_SHADOW_ENABLED;

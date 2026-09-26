@@ -27,6 +27,14 @@ public float3 octDecode(float2 f)
     return normalize(n);
 }
 
+public float srgbToLinear(float c) {
+    return select(
+        c <= float(0.04045),
+        c / 12.92,
+        pow((c + 0.055) / 1.055, float(2.4))
+    );
+}
+
 public float3 srgbToLinear(float3 c) {
     return select(
         c <= float3(0.04045),

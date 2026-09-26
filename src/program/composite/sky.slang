@@ -5,8 +5,6 @@ import lib.atmosphere.atmos_all;
 Texture2D tex_skyViewTransmittanceLUT;
 Texture2D tex_skyViewScatteringLUT;
 
-// Texture2D tex_skyTransmittanceLUT;
-
 RWTexture2D tex_main;
 
 [shader("compute")]

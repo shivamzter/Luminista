@@ -7,6 +7,10 @@ public class LuministaSettings implements PackSettings {
 
     @Override
     public void createSettings(SettingsManager manager, SettingsScreen screen) {
+		final var screenDebug = screen.child("debug");
+		screenDebug.option("DEBUG_WHITE_WORLD", OptionType.boolType(false), false);
+		screenDebug.option("DEBUG_ALBEDO", OptionType.floatType(0.0f, 1.0f, 0.01f, 0.8f), true);
+
 		final var screenIndirectLighting = screen.child("indirectLighting");
 
 		final var screenVanillaAO = screenIndirectLighting.child("vanillaAO");

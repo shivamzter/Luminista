@@ -29,12 +29,17 @@ void main(uint2 coord: SV_DispatchThreadID) {
         // lightMap.rgb = pow(lightMap.rgb, float3(2.2));
 
         float vanillaBlockLight = lightMap.r;
-        float vanillaAO = lightMap.b;
 
         float depth = ap.opaqueDepth[coord];
 
         if (depth > 0.0) {
             color.rgb = srgbToLinear(color.rgb);
+
+            if (userSettings.DEBUG_WHITE_WORLD) {
+                color.rgb = float3(userSettings.DEBUG_ALBEDO);
+            }
+
+            float vanillaAO = srgbToLinear(lightMap.b);
 
             // Space conversions
             float3 ndcPos = float3(texcoord * 2.0 - 1.0, depth);
@@ -69,7 +74,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
             }
 
             float3 directLighting = shadow * (sunLighting + moonLighting);
-            float3 indirectLighting = skyLighting;
+            float3 indirectLighting = skyLighting * ambientOcclusion;
 
             color.rgb *= directLighting + indirectLighting;
         }
