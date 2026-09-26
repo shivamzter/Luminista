@@ -45,7 +45,7 @@ float4 main(float2 pos: SV_Position) {
     float3 skyViewScatteringLUT = tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, uv, 0).rgb;
 
     if (!userSettings.AUTO_EXPOSURE) {
-        color.rgb *= userSettings.MANUAL_EXPOSURE;
+        color.rgb *= convertEV100ToExposure(userSettings.MANUAL_EXPOSURE);
     } else {
         color.rgb *= exposure;
     }

@@ -29,6 +29,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
         // lightMap.rgb = pow(lightMap.rgb, float3(2.2));
 
         float vanillaBlockLight = lightMap.r;
+        float vanillaSkyLight = lightMap.g;
 
         float depth = ap.opaqueDepth[coord];
 
@@ -74,7 +75,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
             }
 
             float3 directLighting = shadow * (sunLighting + moonLighting);
-            float3 indirectLighting = skyLighting * ambientOcclusion;
+            float3 indirectLighting = (skyLighting * vanillaSkyLight) * ambientOcclusion;
 
             color.rgb *= directLighting + indirectLighting;
         }
