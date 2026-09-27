@@ -4,6 +4,8 @@ import lib.atmosphere.atmos_all;
 import lib.rt_shadows;
 import helper.util;
 
+import lib.lighting.lighting_all;
+
 RWTexture2D tex_main;
 RWTexture2D tex_normal;
 RWTexture2D tex_lightMap;
@@ -52,32 +54,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             float3 surfaceNormal = normalize(normal.xyz);
 
-            float3 shadow = getShadow(playerPos, normal.xyz);
+            color.rgb *= surfaceLighting(playerPos, surfaceNormal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);
 
-            float3 sunDir = normalize(ap.celestial.sunPosition);
-            float3 moonDir = normalize(ap.celestial.moonPosition);
-
-            float sunShadow = earthShadow(rayOrigin, sunDir);
-            float moonShadow = earthShadow(rayOrigin, moonDir);
-
-            float3 sunLighting = (sunShadow * SUN_ILLUMINANCE * computeTransmittanceToCelestialLight(rayOrigin, sunDir, tex_skyTransmittanceLUT)) * max(0.0, dot(surfaceNormal, sunDir)) / PI;
-            float3 moonLighting = (moonShadow * MOON_ILLUMINANCE * computeTransmittanceToCelestialLight(rayOrigin, moonDir, tex_skyTransmittanceLUT)) * max(0.0, dot(surfaceNormal, moonDir)) / PI;
-
-            float2 upUV = getUvFromLonLatNonLinear(getLonLatFromDir(float3(0.0, 1.0, 0.0)));
-            upUV = fromUnitToSubUvs(upUV, float2(SKY_VIEW_LUT_SIZE));
-
-            float3 skyLighting = decodeColorRgbm16F(tex_skyViewScatteringLUT.SampleLevel(apt_linearSampler, upUV, 0));
-
-            float ambientOcclusion = 1.0;
-
-            if (userSettings.VANILLA_AO) {
-                ambientOcclusion *= lerp(1.0, vanillaAO, userSettings.VANILLA_AO_INTENSITY);
-            }
-
-            float3 directLighting = shadow * (sunLighting + moonLighting);
-            float3 indirectLighting = (skyLighting * vanillaSkyLight) * ambientOcclusion;
-
-            color.rgb *= directLighting + indirectLighting;
+            // color.rgb *= directLighting + indirectLighting;
         }
 
         tex_main[coord] = encodeColorRgbm16F(color.rgb);

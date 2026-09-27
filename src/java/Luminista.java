@@ -26,6 +26,10 @@ public class Luminista implements ShaderPack {
         var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGB10A2_UNORM).renderSize().create();
         var tex_lightMap = pipeline.texture2D("tex_lightMap", TextureFormat.RGBA8_UNORM).renderSize().create();
 
+        var tex_translucent = pipeline.texture2D("tex_translucent", TextureFormat.RGBA16_SFLOAT).renderSize().create();
+        var tex_translucentNormal = pipeline.texture2D("tex_translucentNormal", TextureFormat.RGB10A2_UNORM).renderSize().create();
+        var tex_translucentLightMap = pipeline.texture2D("tex_translucentLightMap", TextureFormat.RGBA8_UNORM).renderSize().create();
+
         pipeline.texture2D("tex_skyTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(256, 64).create();
         // pipeline.texture2D("tex_skyMulScatterLUT", TextureFormat.RGBA16_SFLOAT).size(32, 32).create();
         pipeline.texture2D("tex_skyViewScatteringLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
@@ -55,17 +59,26 @@ public class Luminista implements ShaderPack {
         // Object passes
         pipeline.object(ProgramUsage.SKYBOX, "program/object/skybox", "SkyShader");
         pipeline.object(ProgramUsage.SKY_TEXTURES, "program/object/skybox", "SkyShader");
-        pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader").writes("color", tex_main).writes("normal", tex_normal).writes("lightMap", tex_lightMap);
-        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader").writes("color", tex_main);
+        pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader")
+        .writes("color", tex_main)
+        .writes("normal", tex_normal)
+        .writes("lightMap", tex_lightMap);
+        
+        pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/forward_translucent", "ForwardTranslucentShader")
+        .writes("color", tex_translucent)
+        .writes("normal", tex_translucentNormal)
+        .writes("lightMap", tex_translucentLightMap);
 
-
+        pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_translucent);
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_main);
+
         // Sky
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyTransmittanceLut", "program/composite/skyTransmittanceLut", "main").dispatch2D(Math.ceilDiv(256, 16), Math.ceilDiv(64, 8));
         // pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyMulScatterLut", "program/composite/skyMulScatterLut", "main").dispatch2D(Math.ceilDiv(32, 16), Math.ceilDiv(32, 8));
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyViewLut", "program/composite/skyViewLut", "main").dispatch2D(Math.ceilDiv(192, 16), Math.ceilDiv(108, 8));
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("sky", "program/composite/sky", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("deferredLighting", "program/composite/lightOpaqueObjects", "main").dispatch2D(sizeX_16, sizeY_16);
+        pipeline.stage(ProgramStage.POST_RENDER).compute("forwardLighting", "program/composite/lightTranslucentObjects", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.POST_RENDER).compute("histogram", "program/composite/histogram", "applyHistogram").dispatch3D(sizeX_16, sizeY_16, 1); //Global histogram
         pipeline.stage(ProgramStage.POST_RENDER).compute("histogramAverage", "program/composite/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
 
