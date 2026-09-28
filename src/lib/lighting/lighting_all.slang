@@ -7,8 +7,8 @@ import lib.rt_shadows;
 import helper.util;
 
 // returns light arriving at the surface (multiply by linear albedo)
-public float3 surfaceLighting(float3 playerPos, float3 normal, float4 lightMap,
-                              Texture2D transmittanceLUT, Texture2D skyViewLUT) {
+public float3 surfaceLighting(float3 playerPos, float3 normal, float4 lightMap, Texture2D transmittanceLUT, Texture2D skyViewLUT) {
+    
     float3 cameraPos = float3(0.0, ap.camera.position.y, 0.0);
     float3 rayOrigin = playerToAtmosphere(playerPos + cameraPos);
 
@@ -28,6 +28,8 @@ public float3 surfaceLighting(float3 playerPos, float3 normal, float4 lightMap,
         ambientOcclusion = lerp(1.0, srgbToLinear(lightMap.b), userSettings.VANILLA_AO_INTENSITY);
     }
 
-    // + your sky-light gate / block light from fix "1" here
-    return shadow * (sunLighting + moonLighting) + skyLighting * ambientOcclusion;
+    float3 directLight = shadow * (sunLighting + moonLighting);
+    float3 indirectLight = skyLighting * ambientOcclusion;
+
+    return directLight + indirectLight;
 }

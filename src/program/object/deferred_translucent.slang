@@ -6,6 +6,8 @@ import helper.util;
 // What you intend to output (color). Name these with what you have put as the bindings in Java.
 struct FragmentOutput {
     float4 color;
+    float4 normal;
+    float4 lightMap;
 }
 
 // What you intend to pass from the vertex shader to the fragment shader. Can have whatever you want.
@@ -13,7 +15,7 @@ struct VertexOutput {
     float2 uv : TEXCOORD; // This : TEXCOORD at the end is called a "semantic". It is used to hint to Aperture what it is. Not required, but recommended. In the future, a list of recommended semantics will be provided.
     float3 pos;
     float4 color : COLOR;
-    // float3 normal;
+    float3 normal;
     // float4 tangent;
     float3 light;
 }
@@ -28,18 +30,18 @@ struct VertexOutput {
 //     return tbnMatrix;
 // }
 
-// float linearStep(float min, float max, float x) {
-// 	return saturate((x - min) / (max - min));
-// }
+float linearStep(float min, float max, float x) {
+	return saturate((x - min) / (max - min));
+}
 
-struct ForwardTranslucentShader : Shader<VertexOutput, FragmentOutput> {
+struct DeferredTranslucentShader : Shader<VertexOutput, FragmentOutput> {
     static void emitVertex(Vertex input, ObjectTransforms transforms, out VertexOutput output, out float4 pos) {
         pos = mul(transforms.projection, mul(transforms.view, input.pos()));
 
         output.uv = input.uv();
         output.pos = pos.xyz;
         output.color = input.color();
-        // output.normal = input.normal().value;
+        output.normal = input.normal().value;
         // output.tangent = input.tangent().value;
         output.light = float3(input.lightCoord(), input.vertexAO().value);
     }
@@ -58,15 +60,14 @@ struct ForwardTranslucentShader : Shader<VertexOutput, FragmentOutput> {
         ap.discardCutout(color);
 
         // The following 2 lines were copied from Amaryllis shader
-        // const float lmcoordLowerBound = 1.0 / 32.0;
-        // const float lmcoordUpperBound = 31.0 / 32.0;
+        const float lmcoordLowerBound = 1.0 / 32.0;
+        const float lmcoordUpperBound = 31.0 / 32.0;
 
         ////////// Vanilla stuff //////////
 
-        // float vanillaBlockLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, vIn.light.r);
-        // float vanillaSkyLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, vIn.light.g);
-        // float vanillaAO = pow(vIn.light.b, float(2.2));
-        // float vanillaAO = vIn.light.b;
+        float vanillaBlockLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, vIn.light.r);
+        float vanillaSkyLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, vIn.light.g);
+        float vanillaAO = select(vIn.light.b == 0.0, 1.0, vIn.light.b);
 
         ////////// LabPBR Normal //////////
 
@@ -105,6 +106,8 @@ struct ForwardTranslucentShader : Shader<VertexOutput, FragmentOutput> {
 
         ////////// OUTPUTS //////////
         output.color = color;
+        output.normal = float4(octEncode(vIn.normal), 1.0, 1.0);
+        output.lightMap = float4(vanillaBlockLight, vanillaSkyLight, vanillaAO, 1.0);
 
         return output;
     }
