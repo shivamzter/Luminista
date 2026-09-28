@@ -34,9 +34,9 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         if (depth > 0.0) {
 
-            colorTranslucent.rgb = srgbToLinear(colorTranslucent.rgb);
+            float3 albedo = srgbToLinear(colorTranslucent.rgb);
 
-            colorTranslucent.rgb *= surfaceLighting(playerPos, normal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);
+            colorTranslucent.rgb *= surfaceLighting(albedo, playerPos, normal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);
         }
 
         float3 litOpaqueObjects = decodeColorRgbm16F(tex_main[coord]);

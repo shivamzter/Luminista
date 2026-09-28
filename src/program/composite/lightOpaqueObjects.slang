@@ -35,13 +35,13 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         if (depth > 0.0) {
 
-            color.rgb = srgbToLinear(color.rgb);
+            float3 albedo = srgbToLinear(color.rgb);
 
             if (userSettings.DEBUG_WHITE_WORLD) {
                 color.rgb = float3(userSettings.DEBUG_ALBEDO);
             }
 
-            color.rgb *= surfaceLighting(playerPos, normal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);
+            color.rgb *= surfaceLighting(albedo, playerPos, normal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);
         }
 
         tex_main[coord] = encodeColorRgbm16F(color.rgb);

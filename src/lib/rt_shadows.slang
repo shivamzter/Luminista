@@ -3,10 +3,11 @@ public module rt_shadows;
 import aperture;
 import settings;
 import rt_pipeline;
+import helper.util;
 
-public static float3 getShadow(float3 localPos, float3 normal) {
+public static float3 getShadow(float3 albedo, float3 localPos, float3 normal) {
 
-    float3 color = 1.0;
+    float3 color = float3(1.0);
 
     var query = HWRT.startQuery(
         localPos + 0.002 * normal,
@@ -18,18 +19,16 @@ public static float3 getShadow(float3 localPos, float3 normal) {
 
     while(query.proceed()) {
         let hit = query.getCandidate();
-
         var surface = HWRT.decodeHit(hit);
 
-        float2 hit_uv = surface.getUV();
-        let hit_color = surface.albedo().sampleLevel(hit_uv, 0.0) * surface.getColor();
+        let hitColor = surface.albedo().sampleLevel(surface.getUV(), 0.0) * surface.getColor();
 
-        if (hit_color.a >= 0.99) {
+        if (hitColor.a >= 0.99) {
             query.acceptCandidate();
         } else {
-            color *= (1.0 - pow(hit_color.a, 2.0));
+            float3 hitAlbedo = srgbToLinear(hitColor.rgb);
+            color *= lerp(albedo, hitAlbedo, hitColor.a);
         }
-
     }
 
     if (query.hasHit()) {
