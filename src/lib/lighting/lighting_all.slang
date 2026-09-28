@@ -7,12 +7,12 @@ import lib.rt_shadows;
 import helper.util;
 
 // returns light arriving at the surface (multiply by linear albedo)
-public float3 surfaceLighting(float3 albedo, float3 playerPos, float3 normal, float4 lightMap, Texture2D transmittanceLUT, Texture2D skyViewLUT) {
+public float3 surfaceLighting(float3 playerPos, float3 normal, float4 lightMap, Texture2D transmittanceLUT, Texture2D skyViewLUT) {
     
     float3 cameraPos = float3(0.0, ap.camera.position.y, 0.0);
     float3 rayOrigin = playerToAtmosphere(playerPos + cameraPos);
 
-    float3 shadow = getShadow(albedo, playerPos, normal);
+    float3 shadow = getShadow(playerPos, normal);
 
     float3 sunDir  = normalize(ap.celestial.sunPosition);
     float3 moonDir = normalize(ap.celestial.moonPosition);

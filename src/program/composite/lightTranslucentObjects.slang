@@ -32,14 +32,14 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float3 viewPos   = projectAndDivide(ap.camera.projectionInv, ndcPos);
         float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
 
+        float3 litOpaqueObjects = decodeColorRgbm16F(tex_main[coord]);
+
         if (depth > 0.0) {
 
-            float3 albedo = srgbToLinear(colorTranslucent.rgb);
+            colorTranslucent.rgb = srgbToLinear(colorTranslucent.rgb);
 
-            colorTranslucent.rgb *= surfaceLighting(albedo, playerPos, normal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);
+            colorTranslucent.rgb *= surfaceLighting(playerPos, normal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);
         }
-
-        float3 litOpaqueObjects = decodeColorRgbm16F(tex_main[coord]);
 
         tex_main[coord] = encodeColorRgbm16F(lerp(litOpaqueObjects, colorTranslucent.rgb, colorTranslucent.a));
     }

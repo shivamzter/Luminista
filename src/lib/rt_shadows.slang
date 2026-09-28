@@ -5,7 +5,7 @@ import settings;
 import rt_pipeline;
 import helper.util;
 
-public static float3 getShadow(float3 albedo, float3 localPos, float3 normal) {
+public static float3 getShadow(float3 localPos, float3 normal) {
 
     float3 color = float3(1.0);
 
@@ -21,19 +21,28 @@ public static float3 getShadow(float3 albedo, float3 localPos, float3 normal) {
         let hit = query.getCandidate();
         var surface = HWRT.decodeHit(hit);
 
-        let hitColor = surface.albedo().sampleLevel(surface.getUV(), 0.0) * surface.getColor();
+        float4 hitColor = surface.albedo().sampleLevel(surface.getUV(), 0.0) * surface.getColor();
 
-        if (hitColor.a >= 0.99) {
+        bool isTranslucent = hit.getHitType() == HWRT.HitType.TERRAIN && hit.getGeometryIndex() == HWRT.RTGeometryIndex.TRANSLUCENT;
+
+        if (isTranslucent) {
+            if (hitColor.a >= 0.99) {
+                query.acceptCandidate();
+            } else {
+                float3 hitAlbedo = srgbToLinear(hitColor.a);
+                float dimming = 1.0 - hitColor.a * hitColor.a;
+                float3 tint = lerp(float3(1.0), srgbToLinear(hitColor.rgb), hitColor.a);
+
+                color *= dimming * tint;
+            }
+        } else if (hitColor.a >= 0.1) {
             query.acceptCandidate();
-        } else {
-            float3 hitAlbedo = srgbToLinear(hitColor.rgb);
-            color *= lerp(albedo, hitAlbedo, hitColor.a);
         }
     }
 
     if (query.hasHit()) {
         return 0.0;
-    };
+    }
 
     return color;
 }
