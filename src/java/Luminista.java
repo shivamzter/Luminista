@@ -12,14 +12,22 @@ public class Luminista implements ShaderPack {
     @Override
     public void configurePipeline(Screen screen, PipelineConfig pipeline) {
 
-        // Math
+        // MISC ////////////////////
+        final var translucentShadowUsages = new ProgramUsage[] {
+		    ProgramUsage.SHADOW_TERRAIN_TRANSLUCENT,
+		    ProgramUsage.SHADOW_ENTITY_TRANSLUCENT,
+		    ProgramUsage.SHADOW_BLOCK_ENTITY_TRANSLUCENT,
+		    ProgramUsage.SHADOW_PARTICLES_TRANSLUCENT
+		};
+
         var sizeX_16 = Math.ceilDiv(screen.renderWidth(), 16);
         var sizeY_16 = Math.ceilDiv(screen.renderHeight(), 16);
 
+        // BUFFERS ////////////////////
         pipeline.buffer("luminanceHistogramBuffer", Integer.BYTES * 256);
         pipeline.buffer("exposureBuffer", Integer.BYTES * 2);
 
-        // Textures
+        // TEXTURES ////////////////////
         tex_shadowColor = pipeline.arrayTexture("tex_shadowColor", TextureFormat.RGBA8_UNORM).shadowSize().create();
     
         var tex_main = pipeline.texture2D("tex_main", TextureFormat.RGBA16_SFLOAT).renderSize().create();
@@ -34,29 +42,16 @@ public class Luminista implements ShaderPack {
         // pipeline.texture2D("tex_skyMulScatterLUT", TextureFormat.RGBA16_SFLOAT).size(32, 32).create();
         pipeline.texture2D("tex_skyViewScatteringLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
         pipeline.texture2D("tex_skyViewTransmittanceLUT", TextureFormat.RGBA16_SFLOAT).size(192, 108).create();
-
         
-        // Pipeline stages
+        // STAGES AND OBJECT PASSES ////////////////////
         pipeline.stage(ProgramStage.PRE_RENDER).clearToWhite(tex_shadowColor);
 
-        // Shadow passes
-        if (pipeline.settings().getBoolValue("SHADOW_ENABLED")) {
+        pipeline.object(ProgramUsage.SHADOW, "program/object/shadow_opaque", "ShadowOpaqueShader");
 
-            final var translucentShadowUsages = new ProgramUsage[] {
-			ProgramUsage.SHADOW_TERRAIN_TRANSLUCENT,
-			ProgramUsage.SHADOW_ENTITY_TRANSLUCENT,
-			ProgramUsage.SHADOW_BLOCK_ENTITY_TRANSLUCENT,
-			ProgramUsage.SHADOW_PARTICLES_TRANSLUCENT
-		    };
-
-            pipeline.object(ProgramUsage.SHADOW, "program/object/shadow_opaque", "ShadowOpaqueShader");
-
-            for (var usage : translucentShadowUsages) {
+        for (var usage : translucentShadowUsages) {
             pipeline.object(usage, "program/object/shadow_translucent", "ShadowTranslucentShader").writes("color", tex_shadowColor, new BlendMode(BlendFactors.SRC_ALPHA, BlendFactors.ONE_MINUS_SRC_ALPHA, BlendFactors.ONE, BlendFactors.ONE_MINUS_SRC_ALPHA));
-            }
         }
 
-        // Object passes
         pipeline.object(ProgramUsage.SKYBOX, "program/object/skybox", "SkyShader");
         pipeline.object(ProgramUsage.SKY_TEXTURES, "program/object/skybox", "SkyShader");
         pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader")
@@ -72,7 +67,6 @@ public class Luminista implements ShaderPack {
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_translucentMain);
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_main);
 
-        // Sky
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyTransmittanceLut", "program/composite/skyTransmittanceLut", "main").dispatch2D(Math.ceilDiv(256, 16), Math.ceilDiv(64, 8));
         // pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyMulScatterLut", "program/composite/skyMulScatterLut", "main").dispatch2D(Math.ceilDiv(32, 16), Math.ceilDiv(32, 8));
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyViewLut", "program/composite/skyViewLut", "main").dispatch2D(Math.ceilDiv(192, 16), Math.ceilDiv(108, 8));
@@ -83,16 +77,14 @@ public class Luminista implements ShaderPack {
         pipeline.stage(ProgramStage.POST_RENDER).compute("histogramAverage", "program/composite/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
 
         
-        // Combination pass
+        // COMBINATION PASS, A.K.A Final ////////////////////
         pipeline.combinationPass("program/post/combination");
     }
 
     @Override
     public void configureRenderer(RendererConfig rendererConfig) {
-        rendererConfig.setSunPathRotation(23.47f);
-        rendererConfig.setShadowCascades(rendererConfig.getSettings().getIntValue("SHADOW_CASCADE_COUNT"));
-        rendererConfig.setShadowDistance(rendererConfig.getSettings().getIntValue("SHADOW_DISTANCE"));
-        rendererConfig.setShadowResolution(rendererConfig.getSettings().getIntValue("SHADOW_RESOLUTION"));
         rendererConfig.enableRT();
+        rendererConfig.setSunPathRotation(23.47f);
+        rendererConfig.setShadowDistance(rendererConfig.getSettings().getIntValue("SHADOW_DISTANCE"));
     }
 }

@@ -1,7 +1,6 @@
 import aperture;
 import settings;
 import helper.util;
-import lib.atmosphere.atmos_all;
 import lib.lighting.lighting_all;
 
 RWTexture2D tex_main;
@@ -38,7 +37,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
             color.rgb = srgbToLinear(color.rgb);
 
             if (userSettings.DEBUG_WHITE_WORLD) {
-                color.rgb = float3(userSettings.DEBUG_ALBEDO);
+                color.rgb = float3(1.0);
             }
 
             color.rgb *= surfaceLighting(playerPos, normal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);

@@ -6,7 +6,6 @@ static const float maxLogLum = 24;
 static const float logLumRange = maxLogLum - minLogLum;
 static float timeCoeff = 0.5;
 
-RWTexture2D tex_main;
 RWStructuredBuffer<uint> luminanceHistogramBuffer;
 RWStructuredBuffer<float2> exposureBuffer;
 

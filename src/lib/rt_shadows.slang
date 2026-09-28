@@ -29,7 +29,6 @@ public static float3 getShadow(float3 localPos, float3 normal) {
             if (hitColor.a >= 0.99) {
                 query.acceptCandidate();
             } else {
-                float3 hitAlbedo = srgbToLinear(hitColor.a);
                 float dimming = 1.0 - hitColor.a * hitColor.a;
                 float3 tint = lerp(float3(1.0), srgbToLinear(hitColor.rgb), hitColor.a);
 

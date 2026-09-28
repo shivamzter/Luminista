@@ -7,10 +7,6 @@ public class LuministaSettings implements PackSettings {
 
     @Override
     public void createSettings(SettingsManager manager, SettingsScreen screen) {
-		final var screenDebug = screen.child("debug");
-		screenDebug.option("DEBUG_WHITE_WORLD", OptionType.boolType(false), false);
-		screenDebug.option("DEBUG_ALBEDO", OptionType.floatType(0.0f, 1.0f, 0.01f, 0.8f), true);
-
 		final var screenIndirectLighting = screen.child("indirectLighting");
 
 		final var screenVanillaAO = screenIndirectLighting.child("vanillaAO");
@@ -20,18 +16,8 @@ public class LuministaSettings implements PackSettings {
 		final var screenShadow = screen.child("shadow");
         screenShadow.option("SHADOW_ENABLED", OptionType.boolType(true), false);
         screenShadow.option(
-			"SHADOW_CASCADE_COUNT",
-			OptionType.intType(1, 16, 1, 4),
-			false
-		);
-        screenShadow.option(
-			"SHADOW_RESOLUTION",
-			OptionType.intType(512, 4096, 512, 2048),
-			false
-		);
-        screenShadow.option(
 			"SHADOW_DISTANCE",
-			OptionType.intType(16, 1024, 16, 160),
+			OptionType.intType(32, 512, 16, 192),
 			false
 		);
 
@@ -42,7 +28,10 @@ public class LuministaSettings implements PackSettings {
 		screenExposure.option("MANUAL_EXPOSURE", OptionType.floatType(-2.0f, 16.0f, 0.25f, 10.0f), true);
 
 		final var screenToneMapping = screenPostProcess.child("toneMapping");
-		screenToneMapping.option("TONE_MAPPING", OptionType.enumType("ToneMapping", 1, "Reinhard", "Reinhard2", "ReinhardJodie", "ACES", "Neutral"), false);
+		screenToneMapping.option("TONE_MAPPING", OptionType.enumType("ToneMapping", 2, "Reinhard", "Reinhard2", "ReinhardJodie", "ACES", "Neutral"), false);
+
+		final var screenDebug = screen.child("debug");
+		screenDebug.option("DEBUG_WHITE_WORLD", OptionType.boolType(false), false);
     }
     
 }

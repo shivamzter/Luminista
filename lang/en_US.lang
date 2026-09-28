@@ -7,9 +7,8 @@ option.VANILLA_AO_INTENSITY = Intensity
 screen.shadow = Shadows
 
 option.SHADOW_ENABLED = Shadows
-option.SHADOW_CASCADE_COUNT = Cascade Count
-option.SHADOW_RESOLUTION = Shadow Resolution
 option.SHADOW_DISTANCE = Shadow Distance
+option.SHADOW_DISTANCE.comment = Minimum value must be set to Render Distance in blocks ammount, so (Render Distance * 16)
 
 screen.postProcess = Post Processing
 
@@ -20,3 +19,6 @@ option.MANUAL_EXPOSURE.comment = Only works if Auto Exposure is Off
 
 screen.toneMapping = Tone Mapping
 option.TONE_MAPPING = Tone Mapping Operator
+
+screen.debug = Debug View
+option.DEBUG_WHITE_WORLD = White World

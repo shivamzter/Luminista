@@ -38,8 +38,8 @@ void main(uint2 coord: SV_DispatchThreadID) {
             float3 skyTransmittance = tex_skyViewTransmittanceLUT.SampleLevel(apt_linearSampler, skyViewUV, 0.0).rgb;
             float3 skyScattering = decodeColorRgbm16F(SampleTextureCatmullRom(tex_skyViewScatteringLUT, apt_linearSampler, skyViewUV, float2(SKY_VIEW_LUT_SIZE)));
 
-            float sunViewDot = dot(normalize(playerPos), normalize(ap.celestial.sunPosition));
-            float moonViewDot = dot(normalize(playerPos), normalize(ap.celestial.moonPosition));
+            float sunViewDot = dot(playerSpaceRayDirection, normalize(ap.celestial.sunPosition));
+            float moonViewDot = dot(playerSpaceRayDirection, normalize(ap.celestial.moonPosition));
 
             float3 sunDisc = select(sunViewDot >= cos(SUN_ANGULAR_RADIUS_RAD), SUN_LUMINANCE, float3(0.0));
             float3 moonDisc = select(moonViewDot >= cos(MOON_ANGULAR_RADIUS_RAD), MOON_LUMINANCE, float3(0.0));

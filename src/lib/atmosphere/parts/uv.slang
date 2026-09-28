@@ -98,17 +98,17 @@ public float4 SampleTextureCatmullRom( Texture2D tex, SamplerState samp, float2 
     texPos12 /= texSize;
 
     float4 result = float4(0.0);
-    result += sampleLevel0( tex, samp,float2(texPos0.x,  texPos0.y)) * w0.x * w0.y;
-    result += sampleLevel0( tex, samp,float2(texPos12.x, texPos0.y)) * w12.x * w0.y;
-    result += sampleLevel0( tex, samp,float2(texPos3.x,  texPos0.y)) * w3.x * w0.y;
+    result += sampleLevel0( tex, samp, float2(texPos0.x,  texPos0.y)) * w0.x * w0.y;
+    result += sampleLevel0( tex, samp, float2(texPos12.x, texPos0.y)) * w12.x * w0.y;
+    result += sampleLevel0( tex, samp, float2(texPos3.x,  texPos0.y)) * w3.x * w0.y;
 
-    result += sampleLevel0( tex, samp,float2(texPos0.x,  texPos12.y)) * w0.x * w12.y;
-    result += sampleLevel0( tex, samp,float2(texPos12.x, texPos12.y)) * w12.x * w12.y;
-    result += sampleLevel0( tex, samp,float2(texPos3.x,  texPos12.y)) * w3.x * w12.y;
+    result += sampleLevel0( tex, samp, float2(texPos0.x,  texPos12.y)) * w0.x * w12.y;
+    result += sampleLevel0( tex, samp, float2(texPos12.x, texPos12.y)) * w12.x * w12.y;
+    result += sampleLevel0( tex, samp, float2(texPos3.x,  texPos12.y)) * w3.x * w12.y;
 
-    result += sampleLevel0( tex, samp,float2(texPos0.x,  texPos3.y)) * w0.x * w3.y;
-    result += sampleLevel0( tex, samp,float2(texPos12.x, texPos3.y)) * w12.x * w3.y;
-    result += sampleLevel0( tex, samp,float2(texPos3.x,  texPos3.y)) * w3.x * w3.y;
+    result += sampleLevel0( tex, samp, float2(texPos0.x,  texPos3.y)) * w0.x * w3.y;
+    result += sampleLevel0( tex, samp, float2(texPos12.x, texPos3.y)) * w12.x * w3.y;
+    result += sampleLevel0( tex, samp, float2(texPos3.x,  texPos3.y)) * w3.x * w3.y;
 
     return result;
 }
