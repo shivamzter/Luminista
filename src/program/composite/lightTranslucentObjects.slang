@@ -12,6 +12,8 @@ Texture2D tex_skyViewScatteringLUT;
 
 RWTexture2D tex_main;
 
+Texture2D tex_labSpecular;
+
 [shader("compute")]
 [numthreads(16, 16)]
 void main(uint2 coord: SV_DispatchThreadID) {
@@ -23,11 +25,12 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float4 lightMap = tex_translucentLightMap[coord];
 
+        float4 labSpecular = tex_labSpecular[coord];
+
         float depth = ap.depth[coord];
 
         float2 texcoord = (coord + 0.5) / ap.game.renderSize;
 
-        // Space conversions
         float3 ndcPos    = float3(texcoord * 2.0 - 1.0, depth);
         float3 viewPos   = projectAndDivide(ap.camera.projectionInv, ndcPos);
         float3 playerPos = mul(ap.camera.viewInv, float4(viewPos, 1.0)).xyz;
@@ -38,7 +41,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             colorTranslucent.rgb = srgbToLinear(colorTranslucent.rgb);
 
-            colorTranslucent.rgb *= surfaceLighting(playerPos, normal, lightMap, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT);
+            colorTranslucent.rgb *= surfaceLighting(colorTranslucent.rgb, normal, lightMap, playerPos, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT, labSpecular);
         }
 
         tex_main[coord] = encodeColorRgbm16F(lerp(litOpaqueObjects, colorTranslucent.rgb, colorTranslucent.a));

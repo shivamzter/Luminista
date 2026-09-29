@@ -26,7 +26,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
         float3 exitPointPosition;
 
         if (getRayMarchEndpoints(rayOrigin, rayDir, entryPointPosition, exitPointPosition)) {
-            primaryRayMarch ray = rayMarch(entryPointPosition, exitPointPosition, SKY_VIEW_LUT_STEPS);
+            PrimaryRayMarch ray = rayMarch(entryPointPosition, exitPointPosition, SKY_VIEW_LUT_STEPS);
 
             transmittance = ray.transmittance;
             scattering = ray.scattering;

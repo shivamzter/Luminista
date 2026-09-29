@@ -31,7 +31,7 @@ public static const float SUN_ANGULAR_DIAMETER_DEG = 0.545;
 public static const float SUN_ANGULAR_DIAMETER_RAD = radians(SUN_ANGULAR_DIAMETER_DEG);
 public static const float SUN_ANGULAR_RADIUS_DEG = SUN_ANGULAR_DIAMETER_DEG / 2.0;
 public static const float SUN_ANGULAR_RADIUS_RAD = SUN_ANGULAR_DIAMETER_RAD / 2.0;
-public static const float SUN_SOLID_ANGLE = 2.0 * PI * (1.0 - cos(SUN_ANGULAR_RADIUS_DEG * (PI / 180.0)));
+public static const float SUN_SOLID_ANGLE = 2.0 * PI * (1.0 - cos(SUN_ANGULAR_RADIUS_RAD));
 public static const float3 SUN_ILLUMINANCE = float3(128000.0);
 public static const float3 SUN_LUMINANCE = SUN_ILLUMINANCE / SUN_SOLID_ANGLE;
 
@@ -39,7 +39,7 @@ public static const float MOON_ANGULAR_DIAMETER_DEG = 0.518;
 public static const float MOON_ANGULAR_DIAMETER_RAD = radians(MOON_ANGULAR_DIAMETER_DEG);
 public static const float MOON_ANGULAR_RADIUS_DEG = MOON_ANGULAR_DIAMETER_DEG / 2.0;
 public static const float MOON_ANGULAR_RADIUS_RAD = MOON_ANGULAR_DIAMETER_RAD / 2.0;
-public static const float MOON_SOLID_ANGLE = 2.0 * PI * (1.0 - cos(MOON_ANGULAR_RADIUS_DEG * (PI / 180.0)));
+public static const float MOON_SOLID_ANGLE = 2.0 * PI * (1.0 - cos(SUN_ANGULAR_RADIUS_RAD));
 public static const float3 MOON_ILLUMINANCE = float3(0.25);
 public static const float3 MOON_LUMINANCE = MOON_ILLUMINANCE / MOON_SOLID_ANGLE;
 

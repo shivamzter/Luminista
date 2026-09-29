@@ -8,6 +8,7 @@ struct FragmentOutput {
     float4 color;
     float4 normal;
     float4 lightMap;
+    float4 labSpecular;
 }
 
 // What you intend to pass from the vertex shader to the fragment shader. Can have whatever you want.
@@ -52,24 +53,22 @@ struct DeferredTranslucentShader : Shader<VertexOutput, FragmentOutput> {
 
         float4 color = vIn.color;
 
-        if (let texture = objectData.albedo()) { // Since `albedo()` returns an Optional<Sampleable>, this is one of a few ways to get the true type. You can also do albedo().hasValue and albedo().value, of course.
-            color *= texture.sampleTexture(vIn.uv); // Some objects simply don't have a texture, such as clouds
+        if (let texture = objectData.albedo()) {
+            color *= texture.sampleTexture(vIn.uv);
         }
 
-        // This is equivalent to `if (objectIsCutout && alpha < 0.1) discard;`. It will determine if the object needs it.
         ap.discardCutout(color);
 
+        ///// VANILLA STUFF ////////////////////
         // The following 2 lines were copied from Amaryllis shader
         const float lmcoordLowerBound = 1.0 / 32.0;
         const float lmcoordUpperBound = 31.0 / 32.0;
-
-        ////////// Vanilla stuff //////////
 
         float vanillaBlockLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, vIn.light.r);
         float vanillaSkyLight = linearStep(lmcoordLowerBound, lmcoordUpperBound, vIn.light.g);
         float vanillaAO = select(vIn.light.b == 0.0, 1.0, vIn.light.b);
 
-        ////////// LabPBR Normal //////////
+        ///// NORMAL ////////////////////
 
         // float4 labNormal = float4(0.0, 0.0, 1.0, 0.0);
 
@@ -90,24 +89,18 @@ struct DeferredTranslucentShader : Shader<VertexOutput, FragmentOutput> {
 
         // labNormal.xyz = normalize(mul(labNormal.xyz, tbn));
 
-        ////////// LabPBR Specular //////////
+        ///// SPECULAR ////////////////////
+        float4 labSpecular = float4(0.0, 0.0, 0.0, 1.0);
 
-        // float4 labSpecular = float4(0.0, 0.0, 0.0, 1.0);
+        if (let specularTex = objectData.specular()) {
+            labSpecular = specularTex.sampleTexture(vIn.uv);
+        }
 
-        // Sample LabPBR specular map
-        // if (let specularTex = objectData.specular()) {
-        //     labSpecular = specularTex.sampleTexture(vIn.uv);
-        // }
-
-        // float roughness = pow(1.0 - (labSpecular.r), 2.0);
-        // roughness = float(roughness / 255);
-
-        // color.rgb *= vanillaAO;
-
-        ////////// OUTPUTS //////////
+        ///// OUTPUTS ////////////////////
         output.color = color;
         output.normal = float4(octEncode(vIn.normal), 1.0, 1.0);
         output.lightMap = float4(vanillaBlockLight, vanillaSkyLight, vanillaAO, 1.0);
+        output.labSpecular = labSpecular;
 
         return output;
     }

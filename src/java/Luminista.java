@@ -33,6 +33,7 @@ public class Luminista implements ShaderPack {
         var tex_main = pipeline.texture2D("tex_main", TextureFormat.RGBA16_SFLOAT).renderSize().create();
         var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGB10A2_UNORM).renderSize().create();
         var tex_lightMap = pipeline.texture2D("tex_lightMap", TextureFormat.RGBA8_UNORM).renderSize().create();
+        var tex_labSpecular = pipeline.texture2D("tex_labSpecular", TextureFormat.RGBA16_SFLOAT).renderSize().create();
 
         var tex_translucentMain = pipeline.texture2D("tex_translucentMain", TextureFormat.RGBA16_SFLOAT).renderSize().create();
         var tex_translucentNormal = pipeline.texture2D("tex_translucentNormal", TextureFormat.RGB10A2_UNORM).renderSize().create();
@@ -57,12 +58,14 @@ public class Luminista implements ShaderPack {
         pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader")
         .writes("color", tex_main)
         .writes("normal", tex_normal)
-        .writes("lightMap", tex_lightMap);
+        .writes("lightMap", tex_lightMap)
+        .writes("labSpecular", tex_labSpecular);
         
         pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/deferred_translucent", "DeferredTranslucentShader")
         .writes("color", tex_translucentMain)
         .writes("normal", tex_translucentNormal)
-        .writes("lightMap", tex_translucentLightMap);
+        .writes("lightMap", tex_translucentLightMap)
+        .writes("labSpecular", tex_labSpecular);
 
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_translucentMain);
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_main);

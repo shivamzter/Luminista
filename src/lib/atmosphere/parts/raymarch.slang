@@ -2,7 +2,7 @@ implementing atmos_all;
 
 Texture2D tex_skyTransmittanceLUT;
 
-public struct primaryRayMarch{
+public struct PrimaryRayMarch{
     public float3 scattering;
     public float3 transmittance;
 }
@@ -20,9 +20,9 @@ public float3 computeIntegratedSingleScatteringForCelestialLight(MediumSample me
     return (singleScattering - singleScattering * sampleTransmittance) / mediumSample.totalExtinction;
 }
 
-public primaryRayMarch rayMarch(in float3 entryPointPos, in float3 exitPointPos, in int numSteps) {
+public PrimaryRayMarch rayMarch(in float3 entryPointPos, in float3 exitPointPos, in int numSteps) {
 
-    primaryRayMarch ray;
+    PrimaryRayMarch ray;
     ray.scattering = float3(0.0);
     ray.transmittance = float3(1.0);
 
