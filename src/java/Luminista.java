@@ -55,6 +55,7 @@ public class Luminista implements ShaderPack {
 
         pipeline.object(ProgramUsage.SKYBOX, "program/object/skybox", "SkyShader");
         pipeline.object(ProgramUsage.SKY_TEXTURES, "program/object/skybox", "SkyShader");
+        
         pipeline.object(ProgramUsage.BASIC, "program/object/deferred_opaque", "DeferredOpaqueShader")
         .writes("color", tex_main)
         .writes("normal", tex_normal)
@@ -70,9 +71,12 @@ public class Luminista implements ShaderPack {
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_translucentMain);
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_main);
 
-        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyTransmittanceLut", "program/composite/skyTransmittanceLut", "main").dispatch2D(Math.ceilDiv(256, 16), Math.ceilDiv(64, 8));
+        ///// LUTS ////////////////////
+        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyTransmittanceLut", "program/luts/skyTransmittanceLut", "main").dispatch2D(Math.ceilDiv(256, 16), Math.ceilDiv(64, 8));
         // pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyMulScatterLut", "program/composite/skyMulScatterLut", "main").dispatch2D(Math.ceilDiv(32, 16), Math.ceilDiv(32, 8));
-        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyViewLut", "program/composite/skyViewLut", "main").dispatch2D(Math.ceilDiv(192, 16), Math.ceilDiv(108, 8));
+        pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("skyViewLut", "program/luts/skyViewLut", "main").dispatch2D(Math.ceilDiv(192, 16), Math.ceilDiv(108, 8));
+
+        ///// COMPOSITES ////////////////////
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("sky", "program/composite/sky", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.PRE_TRANSLUCENT).compute("opaqueLighting", "program/composite/lightOpaqueObjects", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.POST_RENDER).compute("translucentLighting", "program/composite/lightTranslucentObjects", "main").dispatch2D(sizeX_16, sizeY_16);
