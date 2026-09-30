@@ -10,7 +10,7 @@ public float3 surfaceLighting(float3 albedo, float3 normal, float4 lightMap, flo
     }
 
     float3 directLight = shadow * directLight(albedo, normal, playerPos, labSpecular, transmittanceLUT);
-    float3 indirectLight = indirectLight(lightMap, skyViewLUT);
+    float3 indirectLight = indirectLight(albedo, lightMap, skyViewLUT);
 
     return directLight + indirectLight;
 }

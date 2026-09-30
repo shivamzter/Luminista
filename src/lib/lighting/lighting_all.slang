@@ -10,3 +10,4 @@ __include "parts/brdf.slang";
 __include "parts/directLight";
 __include "parts/indirectLight";
 __include "parts/surfaceLighting";
+__include "parts/labPBR";

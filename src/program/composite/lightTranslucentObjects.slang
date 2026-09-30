@@ -41,7 +41,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             colorTranslucent.rgb = srgbToLinear(colorTranslucent.rgb);
 
-            colorTranslucent.rgb *= surfaceLighting(colorTranslucent.rgb, normal, lightMap, playerPos, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT, labSpecular);
+            colorTranslucent.rgb = surfaceLighting(colorTranslucent.rgb, normal, lightMap, playerPos, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT, labSpecular);
         }
 
         tex_main[coord] = encodeColorRgbm16F(lerp(litOpaqueObjects, colorTranslucent.rgb, colorTranslucent.a));

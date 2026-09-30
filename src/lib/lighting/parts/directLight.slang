@@ -9,12 +9,10 @@ public float3 directLight(float3 albedo, float3 normal, float3 playerPos, float4
 
     float3 viewDir = normalize(-playerPos);
 
-    float roughness = labSpecular.r;
-    roughness = pow(1.0 - (max(roughness, 0.04)), 2.0);
-    float reflectance = labSpecular.g;
+    LabPBRData labPBR = decodeLabPBRv1_3(albedo, labSpecular);
 
-    float3 sunLighting = earthShadow(rayOrigin, sunDir) * computeTransmittanceToCelestialLight(rayOrigin, sunDir, transmittanceLUT) * disneyBRDF(sunDir, viewDir, albedo, reflectance, normal, roughness, SUN_ILLUMINANCE);
-    float3 moonLighting = earthShadow(rayOrigin, moonDir) * computeTransmittanceToCelestialLight(rayOrigin, moonDir, transmittanceLUT) * disneyBRDF(moonDir, viewDir, albedo, reflectance, normal, roughness, MOON_ILLUMINANCE);
+    float3 sunLighting = earthShadow(rayOrigin, sunDir) * computeTransmittanceToCelestialLight(rayOrigin, sunDir, transmittanceLUT) * evaluateBRDF(labPBR, sunDir, viewDir, normal, SUN_ILLUMINANCE);
+    float3 moonLighting = earthShadow(rayOrigin, moonDir) * computeTransmittanceToCelestialLight(rayOrigin, moonDir, transmittanceLUT) * evaluateBRDF(labPBR, moonDir, viewDir, normal, MOON_ILLUMINANCE);
 
     return sunLighting + moonLighting;
 }

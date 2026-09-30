@@ -43,7 +43,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
                 color.rgb = float3(1.0);
             }
 
-            color.rgb *= surfaceLighting(color.rgb, normal, lightMap, playerPos, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT, labSpecular);
+            color.rgb = surfaceLighting(color.rgb, normal, lightMap, playerPos, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT, labSpecular);
         }
 
         tex_main[coord] = encodeColorRgbm16F(color.rgb);
