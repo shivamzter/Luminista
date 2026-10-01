@@ -93,7 +93,9 @@ LabPBRData decodeLabPBRv1_3(float3 albedo, float4 specular) {
 
     if (labPBR.isMetal) {
         LabPBRv1_3ConductorData conductor = getLabPBRv1_3ConductorData(g, albedo);
-        labPBR.f0 = conductor.f0;
+
+        // use albedo in case 255
+        labPBR.f0 = conductor.f0 * albedo;
         labPBR.f82Tint = conductor.f82Tint;
     } else {
         labPBR.f0 = float3(g >= 1 ? float(g) / 255.0 : 0.04);

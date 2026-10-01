@@ -8,6 +8,7 @@ struct FragmentOutput {
     float4 color;
     float4 normal;
     float4 lightMap;
+    float4 labNormal;
     float4 labSpecular;
 }
 
@@ -17,19 +18,19 @@ struct VertexOutput {
     float3 pos;
     float4 color : COLOR;
     float3 normal;
-    // float4 tangent;
+    float4 tangent;
     float3 light;
 }
 
 // TBN matrix thanks to Jake Michie
-// float3x3 computeTbnMatrix(float3 normal, float4 tangent) {
-//     float3x3 tbnMatrix;
-//     tbnMatrix[2] = normal;
-//     tbnMatrix[0] = tangent.xyz;
-//     tbnMatrix[1] = cross(tbnMatrix[0], tbnMatrix[2]) * select(tangent.w >= 0.0, 1.0, -1.0);
+float3x3 computeTbnMatrix(float3 normal, float4 tangent) {
+    float3x3 tbnMatrix;
+    tbnMatrix[2] = normal;
+    tbnMatrix[0] = tangent.xyz;
+    tbnMatrix[1] = cross(tbnMatrix[0], tbnMatrix[2]) * select(tangent.w >= 0.0, 1.0, -1.0);
 
-//     return tbnMatrix;
-// }
+    return tbnMatrix;
+}
 
 float linearStep(float min, float max, float x) {
 	return saturate((x - min) / (max - min));
@@ -43,7 +44,7 @@ struct DeferredTranslucentShader : Shader<VertexOutput, FragmentOutput> {
         output.pos = pos.xyz;
         output.color = input.color();
         output.normal = input.normal().value;
-        // output.tangent = input.tangent().value;
+        output.tangent = input.tangent().value;
         output.light = float3(input.lightCoord(), input.vertexAO().value);
     }
 
@@ -69,25 +70,24 @@ struct DeferredTranslucentShader : Shader<VertexOutput, FragmentOutput> {
         float vanillaAO = select(vIn.light.b == 0.0, 1.0, vIn.light.b);
 
         ///// NORMAL ////////////////////
-
-        // float4 labNormal = float4(0.0, 0.0, 1.0, 0.0);
+        float4 labNormal = float4(0.0, 0.0, 1.0, 0.0);
 
         // Sample LabPBR normal map
-        // if (let normalTex = objectData.normal()) {
-        //     labNormal = normalTex.sampleTexture(vIn.uv);
-        // }
+        if (let normalTex = objectData.normal()) {
+            labNormal = normalTex.sampleTexture(vIn.uv);
+        }
 
         // Storing AO and Heightmap before modification
-        // float labAO = labNormal.b;
-        // float labHeightmap = labNormal.a;
+        float labAO = labNormal.b;
+        float labHeightmap = labNormal.a;
 
         // Remap and calculate z component
-        // labNormal.xy = labNormal.xy * 2.0 - 1.0;
-	    // labNormal.z = sqrt(1.0 - dot(labNormal.xy, labNormal.xy));
+        labNormal.xy = labNormal.xy * 2.0 - 1.0;
+	    labNormal.z = sqrt(1.0 - dot(labNormal.xy, labNormal.xy));
 
-        // float3x3 tbn = computeTbnMatrix(vIn.normal, vIn.tangent);
+        float3x3 tbn = computeTbnMatrix(vIn.normal, vIn.tangent);
 
-        // labNormal.xyz = normalize(mul(labNormal.xyz, tbn));
+        labNormal.xyz = normalize(mul(labNormal.xyz, tbn));
 
         ///// SPECULAR ////////////////////
         float4 labSpecular = float4(0.0, 0.0, 0.0, 1.0);
@@ -100,6 +100,7 @@ struct DeferredTranslucentShader : Shader<VertexOutput, FragmentOutput> {
         output.color = color;
         output.normal = float4(octEncode(vIn.normal), 1.0, 1.0);
         output.lightMap = float4(vanillaBlockLight, vanillaSkyLight, vanillaAO, 1.0);
+        output.labNormal = float4(octEncode(labNormal.xyz), 1.0, 1.0);
         output.labSpecular = labSpecular;
 
         return output;

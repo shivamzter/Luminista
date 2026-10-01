@@ -12,6 +12,7 @@ Texture2D tex_skyViewScatteringLUT;
 
 RWTexture2D tex_main;
 
+Texture2D tex_labNormal;
 Texture2D tex_labSpecular;
 
 [shader("compute")]
@@ -25,6 +26,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
         float4 lightMap = tex_translucentLightMap[coord];
 
+        float3 labNormal = normalize(octDecode(tex_labNormal[coord].xy));
         float4 labSpecular = tex_labSpecular[coord];
 
         float depth = ap.depth[coord];
@@ -41,7 +43,7 @@ void main(uint2 coord: SV_DispatchThreadID) {
 
             colorTranslucent.rgb = srgbToLinear(colorTranslucent.rgb);
 
-            colorTranslucent.rgb = surfaceLighting(colorTranslucent.rgb, normal, lightMap, playerPos, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT, labSpecular);
+            colorTranslucent.rgb = surfaceLighting(colorTranslucent.rgb, normal, lightMap, playerPos, tex_skyTransmittanceLUT, tex_skyViewScatteringLUT, labNormal, labSpecular);
         }
 
         tex_main[coord] = encodeColorRgbm16F(lerp(litOpaqueObjects, colorTranslucent.rgb, colorTranslucent.a));

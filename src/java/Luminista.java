@@ -33,6 +33,7 @@ public class Luminista implements ShaderPack {
         var tex_main = pipeline.texture2D("tex_main", TextureFormat.RGBA16_SFLOAT).renderSize().create();
         var tex_normal = pipeline.texture2D("tex_normal", TextureFormat.RGB10A2_UNORM).renderSize().create();
         var tex_lightMap = pipeline.texture2D("tex_lightMap", TextureFormat.RGBA8_UNORM).renderSize().create();
+        var tex_labNormal = pipeline.texture2D("tex_labNormal", TextureFormat.RGB10A2_UNORM).renderSize().create();
         var tex_labSpecular = pipeline.texture2D("tex_labSpecular", TextureFormat.RGBA16_SFLOAT).renderSize().create();
 
         var tex_translucentMain = pipeline.texture2D("tex_translucentMain", TextureFormat.RGBA16_SFLOAT).renderSize().create();
@@ -60,12 +61,14 @@ public class Luminista implements ShaderPack {
         .writes("color", tex_main)
         .writes("normal", tex_normal)
         .writes("lightMap", tex_lightMap)
+        .writes("labNormal", tex_labNormal)
         .writes("labSpecular", tex_labSpecular);
         
         pipeline.object(ProgramUsage.TRANSLUCENT, "program/object/deferred_translucent", "DeferredTranslucentShader")
         .writes("color", tex_translucentMain)
         .writes("normal", tex_translucentNormal)
         .writes("lightMap", tex_translucentLightMap)
+        .writes("labNormal", tex_labNormal)
         .writes("labSpecular", tex_labSpecular);
 
         pipeline.stage(ProgramStage.PRE_RENDER).clearTo(new Vector4f(0.0f), tex_translucentMain);
@@ -82,7 +85,6 @@ public class Luminista implements ShaderPack {
         pipeline.stage(ProgramStage.POST_RENDER).compute("translucentLighting", "program/composite/lightTranslucentObjects", "main").dispatch2D(sizeX_16, sizeY_16);
         pipeline.stage(ProgramStage.POST_RENDER).compute("histogram", "program/composite/histogram", "applyHistogram").dispatch3D(sizeX_16, sizeY_16, 1); //Global histogram
         pipeline.stage(ProgramStage.POST_RENDER).compute("histogramAverage", "program/composite/histogramAverage", "applyHistogramAverage").dispatch1D(1); //Calculate average
-
         
         // COMBINATION PASS, A.K.A Final ////////////////////
         pipeline.combinationPass("program/post/combination");
