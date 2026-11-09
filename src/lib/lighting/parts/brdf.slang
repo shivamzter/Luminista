@@ -62,6 +62,10 @@ public float3 evaluateBRDF(LabPBRData labPBRData, float3 lightDir, float3 viewDi
     float nDotL = saturate(dot(normal, lightDir));
     float lDotV = saturate(dot(lightDir, viewDir));
 
+    if (labPBRData.isMetal) {
+        labPBRData.roughness = max(labPBRData.roughness, 0.05);
+    }
+
     // Distribution function
     float D = ndfGGX(nDotH, labPBRData.roughness);
 
